@@ -225,7 +225,7 @@ En Pol **ja té la microSD**. La Raspberry Pi 3 l'hi deixa algú (és gratis). E
 3. **Tipus de wifi de la sala:** si és WPA2-Enterprise o té portal captiu, cal cable de xarxa. Sense internet no hi ha hora fiable, perquè la Pi 3 **no té RTC**.
 4. **Connector de l'entrada del JEDIA** on va el Fonestar (RCA o jack) per saber quin cable cal.
 5. **Demanar a informàtica una IP fixa (reserva DHCP)** per a la Raspberry, i connectar-la a la mateixa wifi que el personal. Es donarà l'enllaç `http://IP` a la directora i a qui calgui.
-6. Primera instal·lació real seguint `GUIA.md` i un primer toc amb en Pol al costat.
+6. Primera instal·lació real seguint `GUIA.md` i un primer toc amb en Pol al costat. **És el primer cop que en Pol fa servir una Raspberry:** la prepara a casa sense pantalla (portàtil Windows + PowerShell/SSH, Raspberry connectada al router amb cable, wifi de l'escola ja posada a l'Imager), prova el so amb auriculars i després la porta a l'escola. Guia'l pas a pas si t'ho demana.
 7. Copiar la cançó actual del pen com a `reserva.mp3`.
 
 ## 8. Riscos i coses a verificar a la Raspberry real
