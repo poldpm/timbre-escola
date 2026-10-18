@@ -51,7 +51,6 @@ SOCKET_MPV = "/tmp/timbre-mpv.sock"
 MPV_LOG = BASE / "mpv.log"            # errors de l'ultim cop que ha sonat
 COMPROVA_INICI = 1.5  # s: si mpv s'atura abans d'aixo, no ha sonat
 MARGE_RETARD = 30   # s: si la Raspberry arrenca tard, encara toca si fa menys d'aixo
-MIN_CONTRASENYA = 10           # caracters de les contrasenyes noves
 INTENTS_LLIURES = 5            # errors de contrasenya seguits abans de bloquejar
 ESPAI_RESERVAT = 300 * 1024 * 1024   # bytes lliures que sempre han de quedar a la SD
 
@@ -150,10 +149,14 @@ def cfg():
 
 
 def valida_contrasenya_nova(text):
-    if not isinstance(text, str) or len(text) < MIN_CONTRASENYA:
-        raise Invalid(f"La contrasenya ha de tenir {MIN_CONTRASENYA} caràcters o més "
-                      "(pots fer servir una frase, per exemple)")
+    """La contrasenya es un codi de 4 xifres (decisio d'en Pol, 18/10)."""
+    if not codi_valid(text):
+        raise Invalid("La contrasenya ha de ser un codi de 4 xifres")
     return text
+
+
+def codi_valid(text):
+    return isinstance(text, str) and len(text) == 4 and text.isascii() and text.isdigit()
 
 
 def hash_contrasenya(text, sal=None):
@@ -985,9 +988,9 @@ def main():
 
     if "--contrasenya" in sys.argv:
         while True:
-            nova = getpass.getpass(f"Contrasenya nova per a la web ({MIN_CONTRASENYA} caràcters o més): ")
-            if len(nova) < MIN_CONTRASENYA:
-                print(f"Massa curta: ha de tenir {MIN_CONTRASENYA} caràcters o més. Pots fer servir una frase.")
+            nova = getpass.getpass("Contrasenya nova per a la web (codi de 4 xifres): ")
+            if not codi_valid(nova):
+                print("Ha de ser un codi de 4 xifres, per exemple 4071.")
             elif getpass.getpass("Repeteix-la: ") != nova:
                 print("No coincideixen. Torna-hi.")
             else:

@@ -1,16 +1,16 @@
 #!/bin/bash
 # Proves bàsiques de l'API contra el servidor demo (bash tools/demo.sh en una altra terminal).
-# Si la contrasenya encara no està configurada, la configura com "escorial-proves".
+# Si la contrasenya encara no està configurada, la configura com "2468".
 U=${U:-http://localhost:8099}
 CK=$(mktemp); C="curl -s -c $CK -b $CK"; J='-H Content-Type:application/json'
 
-$C -X POST $J -d '{"contrasenya":"escorial-proves"}' $U/api/configura >/dev/null
-$C -X POST $J -d '{"contrasenya":"escorial-proves"}' $U/api/login; echo
+$C -X POST $J -d '{"contrasenya":"2468"}' $U/api/configura >/dev/null
+$C -X POST $J -d '{"contrasenya":"2468"}' $U/api/login; echo
 
 echo "--- sense login ha de donar 401:"; curl -s -o /dev/null -w "%{http_code}\n" $U/api/estat
 echo "--- hora invàlida ha de donar error:"; $C -X PATCH $J -d '{"tocs":[{"hora":"25:00","durada":60,"dies":[0]}]}' $U/api/config; echo
 echo "--- durada que no és un número ha de donar error:"; $C -X POST $J -d '{"segons":"abc"}' $U/api/toca; echo
-echo "--- contrasenya nova massa curta ha de donar error:"; $C -X POST $J -d '{"actual":"escorial-proves","nova":"curta"}' $U/api/contrasenya; echo
+echo "--- contrasenya que no és de 4 xifres ha de donar error:"; $C -X POST $J -d '{"actual":"2468","nova":"12a4"}' $U/api/contrasenya; echo
 echo "--- path traversal ha de donar 404:"; $C -o /dev/null -w "%{http_code}\n" "$U/api/cancons/..%2Fconfig.json/audio"
 
 sel(){ $C $U/api/estat | python3 -c "import json,sys; print('   ', json.load(sys.stdin)['seleccio'])"; }

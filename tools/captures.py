@@ -1,5 +1,5 @@
 # Captures automàtiques de la web amb Playwright.
-# Ús: engega `bash tools/demo.sh` (contrasenya ja configurada com "escorial-proves", p. ex. amb tools/proves-api.sh)
+# Ús: engega `bash tools/demo.sh` (contrasenya ja configurada com "2468", p. ex. amb tools/proves-api.sh)
 #      i després: python3 tools/captures.py <carpeta_on_desar>  (crea <carpeta>/shots/*.png)
 import sys, time
 from playwright.sync_api import sync_playwright
@@ -9,7 +9,7 @@ with sync_playwright() as p:
     pg=b.new_page(viewport={"width":390,"height":844}, device_scale_factor=2)
     pg.on("pageerror", lambda e: errs.append(str(e)))
     pg.goto(U); time.sleep(0.6); pg.screenshot(path=f"{S}/shots/a-login.png")
-    pg.fill("#login-pass","escorial-proves"); pg.click("#login-btn"); time.sleep(1.5)
+    pg.fill("#login-pass","2468"); pg.click("#login-btn"); time.sleep(1.5)
     pg.screenshot(path=f"{S}/shots/b-inici.png")
     pg.click("nav button[data-s=cancons]"); time.sleep(1)
     pg.screenshot(path=f"{S}/shots/c-cancons.png")
