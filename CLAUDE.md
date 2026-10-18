@@ -210,7 +210,7 @@ python3 tools/captures.py <carpeta>     # captures amb Playwright (contrasenya "
 
 ## 7. Estat actual i PENDENTS (18/10/2026)
 
-**Repositori:** https://github.com/poldpm/timbre-escola (branca `main`). La Raspberry s'instal·la amb `git clone` + `bash installa.sh` i s'actualitza amb `git pull && bash installa.sh` (vegeu GUIA.md). `installa.sh` copia `timbre.py` i `web/` a `~/timbre/`, on hi ha les dades. **Ara mateix el repo és públic**: s'ha recomanat a en Pol fer-lo privat (llavors el `git clone` de la Pi necessita un token).
+**Repositori:** https://github.com/poldpm/timbre-escola (branca `main`). La Raspberry s'instal·la amb `git clone` + `bash installa.sh` i s'actualitza amb `git pull && bash installa.sh` (vegeu GUIA.md). `installa.sh` copia `timbre.py` i `web/` a `~/timbre/`, on hi ha les dades. **El repo és públic per decisió d'en Pol** (18/10): se li ha explicat que els privats són gratuïts i ha preferit deixar-lo així. No hi ha secrets, perquè les dades reals són a la Pi i al `.gitignore`. **No pugis mai contrasenyes, IP, dades de la wifi ni dades personals.**
 
 **Riscos detectats a la revisió del 18/10 que encara no s'han tocat:** el filtre `loudnorm` pot endarrerir l'inici uns segons (cal provar-ho a la Pi); els dos rellotges (Theben i Pi) poden desquadrar-se (la protecció de 3 s és petita); els `int()` sense validar a `/api/toca` i `PATCH /api/cancons/<nom>` donen un error 500; `estat.json` es llegeix i s'escriu des de dos fils sense lock; no es comprova l'espai lliure de la SD a les pujades. Si la placa és una Pi 3 B (no B+), la wifi només és de 2,4 GHz.
 
