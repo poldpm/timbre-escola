@@ -9,6 +9,7 @@
 - **Usuari:** en Pol, mestre de primària a **Vedruna Escorial Vic** (Vic, Catalunya) i responsable de comunicació de l'escola. Té bon nivell tècnic (fa apps amb Claude, Google Sheets + Apps Script, GitHub Pages), però **no és electricista**: tot el que sigui 230 V ho ha de fer l'instal·lador.
 - **Idioma:** parla-li en **català**. Totes les interfícies, missatges i textos d'usuari, en català.
 - **Git (norma fixa):** a l'inici de cada sessió fes `git pull`. En acabar cada canvi complet, fes `git commit` + `git push` **sense que t'ho demani**.
+  - **Fusionar a `main` també ho fas tu (autoritzat per en Pol el 18/10):** si treballes en una branca, en acabar cada canvi provat obre el pull request contra `main` i **fusiona'l tu mateix**, sense esperar-lo. La Raspberry s'actualitza des de `main`. Només ho deixes obert si en Pol demana revisar-lo abans o si les proves no passen.
 - **Convencions de desenvolupament:** mobile-first, en català, **sense frameworks pesats** (HTML/CSS/JS pur i Python estàndard).
 - **Disseny:** el pes màxim de lletra és **Bold (700)**. **Mai Black/900**: ho ha demanat diverses vegades perquè perjudica la llegibilitat.
 - **Colors corporatius** (extrets del logo oficial de l'escola, `docs/logo-vedruna-escorial-vic.png`): granat **`#810023`** i vermell **`#E0003F`**. El logo és un "check" de dos traços (curt vermell + llarg granat) amb el text "**Vedruna** Escorial Vic".
