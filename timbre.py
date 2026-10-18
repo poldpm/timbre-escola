@@ -51,6 +51,9 @@ SOCKET_MPV = "/tmp/timbre-mpv.sock"
 MPV_LOG = BASE / "mpv.log"            # errors de l'ultim cop que ha sonat
 COMPROVA_INICI = 1.5  # s: si mpv s'atura abans d'aixo, no ha sonat
 MARGE_RETARD = 30   # s: si la Raspberry arrenca tard, encara toca si fa menys d'aixo
+MIN_CONTRASENYA = 10           # caracters de les contrasenyes noves
+INTENTS_LLIURES = 5            # errors de contrasenya seguits abans de bloquejar
+ESPAI_RESERVAT = 300 * 1024 * 1024   # bytes lliures que sempre han de quedar a la SD
 
 CONFIG_PER_DEFECTE = {
     "actiu": True,
@@ -146,6 +149,13 @@ def cfg():
         return json.loads(json.dumps(CFG))
 
 
+def valida_contrasenya_nova(text):
+    if not isinstance(text, str) or len(text) < MIN_CONTRASENYA:
+        raise Invalid(f"La contrasenya ha de tenir {MIN_CONTRASENYA} caràcters o més "
+                      "(pots fer servir una frase, per exemple)")
+    return text
+
+
 def hash_contrasenya(text, sal=None):
     sal = sal or secrets.token_hex(8)
     h = hashlib.pbkdf2_hmac("sha256", text.encode(), sal.encode(), 120_000).hex()
@@ -154,7 +164,7 @@ def hash_contrasenya(text, sal=None):
 
 def comprova_contrasenya(text):
     desat = cfg().get("contrasenya")
-    if not desat:
+    if not desat or not isinstance(text, str):
         return False
     sal = desat.split("$")[0]
     return secrets.compare_digest(hash_contrasenya(text, sal), desat)
@@ -163,6 +173,13 @@ def comprova_contrasenya(text):
 # ----------------------------------------------------------------- VALIDACIO
 class Invalid(Exception):
     pass
+
+
+def enter(valor, minim, maxim, nom):
+    try:
+        return max(minim, min(maxim, int(valor)))
+    except (TypeError, ValueError):
+        raise Invalid(f"{nom} ha de ser un número")
 
 
 def valida_tocs(tocs):
@@ -296,6 +313,9 @@ def nom_segur(nom):
     return nom.strip(" .")
 
 
+ESTAT_LOCK = threading.RLock()   # estat.json el toquen el programador i la web alhora
+
+
 def llegeix_estat():
     try:
         return json.loads(ESTAT.read_text(encoding="utf-8"))
@@ -316,6 +336,11 @@ def actives(c):
 
 def tria_aleatoria(c, excepte=None):
     """Canco a l'atzar entre les actives, evitant les ultimes que han sonat."""
+    with ESTAT_LOCK:
+        return _tria_aleatoria(c, excepte)
+
+
+def _tria_aleatoria(c, excepte):
     llista = actives(c)
     if not llista:
         if RESERVA.exists():
@@ -344,6 +369,11 @@ def clau_periode(mode, dia):
 
 def canco_del_periode(c, dia=None, nova=False, forcada=None):
     """Mode dia/setmana: retorna la canco del periode actual (la tria si cal)."""
+    with ESTAT_LOCK:
+        return _canco_del_periode(c, dia, nova, forcada)
+
+
+def _canco_del_periode(c, dia, nova, forcada):
     mode = c["seleccio"]["mode"]
     clau = clau_periode(mode, dia or date.today())
     estat = llegeix_estat()
@@ -611,6 +641,26 @@ from flask import Flask, abort, jsonify, request, send_file, send_from_directory
 app = Flask(__name__, static_folder=None)
 app.config["MAX_CONTENT_LENGTH"] = 500 * 1024 * 1024
 app.permanent_session_lifetime = timedelta(days=90)
+# La web va per http dins l'escola: per aixo no es posa SESSION_COOKIE_SECURE
+app.config.update(SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Lax")
+
+FALLADES = {}   # ip -> (errors seguits, bloquejat fins a [monotonic])
+FALLADES_LOCK = threading.Lock()
+
+
+def segons_bloquejat(ip):
+    with FALLADES_LOCK:
+        return max(0.0, FALLADES.get(ip, (0, 0))[1] - time.monotonic())
+
+
+def apunta_fallada(ip):
+    """A partir del 5e error seguit, bloqueja 30 s, 1 min, 2 min... fins a 15 min."""
+    with FALLADES_LOCK:
+        n = FALLADES.get(ip, (0, 0))[0] + 1
+        espera = 0 if n < INTENTS_LLIURES else min(30 * 2 ** (n - INTENTS_LLIURES), 900)
+        FALLADES[ip] = (n, time.monotonic() + espera)
+    if espera:
+        log.warning("%d contrasenyes incorrectes seguides des de %s: bloquejat %d s", n, ip, espera)
 
 
 def clau_sessio():
@@ -650,9 +700,7 @@ def api_sessio():
 def api_configura():
     if cfg().get("contrasenya"):
         abort(403)
-    text = (request.json or {}).get("contrasenya", "")
-    if len(text) < 4:
-        raise Invalid("La contrasenya ha de tenir 4 caràcters o més")
+    text = valida_contrasenya_nova((request.json or {}).get("contrasenya", ""))
     with LOCK:
         CFG["contrasenya"] = hash_contrasenya(text)
         desa_config()
@@ -663,11 +711,19 @@ def api_configura():
 
 @app.post("/api/login")
 def api_login():
+    ip = request.remote_addr or "?"
+    espera = segons_bloquejat(ip)
+    if espera:
+        minuts = max(1, round(espera / 60))
+        return jsonify(error=f"Massa intents fallits. Torna-ho a provar d'aquí a {minuts} min."), 429
     time.sleep(0.4)
     if comprova_contrasenya((request.json or {}).get("contrasenya", "")):
+        with FALLADES_LOCK:
+            FALLADES.pop(ip, None)
         session.permanent = True
         session["ok"] = True
         return jsonify(ok=True)
+    apunta_fallada(ip)
     return jsonify(error="Contrasenya incorrecta"), 401
 
 
@@ -748,7 +804,7 @@ def api_periode():
         raise Invalid("Només es pot fer en els modes «cada dia» o «cada setmana»")
     nom = (request.json or {}).get("canco")
     if nom:
-        cami_canco(nom)
+        nom = cami_canco(nom).name
     p = canco_del_periode(c, nova=not nom, forcada=nom)
     return jsonify(ok=True, canco=p.name if p else None)
 
@@ -803,12 +859,17 @@ def api_cancons():
 @cal_login
 def api_puja():
     MUSICA.mkdir(parents=True, exist_ok=True)
-    desades, rebutjades = [], []
+    desades, rebutjades, sense_espai = [], [], []
     for f in request.files.getlist("fitxers"):
         nom = nom_segur(f.filename or "")
         p = Path(nom)
         if not nom or p.suffix.lower() not in EXTENSIONS:
             rebutjades.append(f.filename)
+            continue
+        mida = f.stream.seek(0, os.SEEK_END)
+        f.stream.seek(0)
+        if shutil.disk_usage(MUSICA).free - mida < ESPAI_RESERVAT:
+            sense_espai.append(f.filename)
             continue
         desti = MUSICA / nom
         i = 2
@@ -818,12 +879,16 @@ def api_puja():
         f.save(desti)
         desades.append(desti.name)
     log.info("Pujades: %s", desades)
-    return jsonify(desades=desades, rebutjades=rebutjades)
+    if sense_espai:
+        log.warning("Sense espai a la targeta per a: %s", sense_espai)
+    return jsonify(desades=desades, rebutjades=rebutjades, sense_espai=sense_espai)
 
 
 def cami_canco(nom):
+    if not isinstance(nom, str) or not nom or nom != nom_segur(nom):
+        abort(404)
     p = MUSICA / nom
-    if nom != nom_segur(nom) or not p.is_file():
+    if not p.is_file():
         abort(404)
     return p
 
@@ -838,7 +903,7 @@ def api_canco_canvia(nom):
         if "activa" in d:
             meta["activa"] = bool(d["activa"])
         if "inici" in d:
-            meta["inici"] = max(0, min(3600, int(d["inici"] or 0)))
+            meta["inici"] = enter(d["inici"] or 0, 0, 3600, "El segon d'inici")
         desa_config()
     return jsonify(ok=True)
 
@@ -866,7 +931,7 @@ def api_canco_audio(nom):
 def api_toca():
     d = request.json or {}
     c = cfg()
-    segons = max(5, min(600, int(d.get("segons", 30))))
+    segons = enter(d.get("segons", 30), 5, 600, "La durada")
     canco = cami_canco(d["canco"]) if d.get("canco") else tria_canco(c)
     if not canco:
         raise Invalid("No hi ha cap cançó per tocar")
@@ -895,10 +960,9 @@ def api_contrasenya():
     d = request.json or {}
     if not comprova_contrasenya(d.get("actual", "")):
         raise Invalid("La contrasenya actual no és correcta")
-    if len(d.get("nova", "")) < 4:
-        raise Invalid("La contrasenya nova ha de tenir 4 caràcters o més")
+    nova = valida_contrasenya_nova(d.get("nova", ""))
     with LOCK:
-        CFG["contrasenya"] = hash_contrasenya(d["nova"])
+        CFG["contrasenya"] = hash_contrasenya(nova)
         desa_config()
     return jsonify(ok=True)
 
@@ -920,13 +984,18 @@ def main():
     carrega_config()
 
     if "--contrasenya" in sys.argv:
-        nova = getpass.getpass("Contrasenya nova per a la web: ")
-        if len(nova) < 4:
-            sys.exit("Ha de tenir 4 caràcters o més")
+        while True:
+            nova = getpass.getpass(f"Contrasenya nova per a la web ({MIN_CONTRASENYA} caràcters o més): ")
+            if len(nova) < MIN_CONTRASENYA:
+                print(f"Massa curta: ha de tenir {MIN_CONTRASENYA} caràcters o més. Pots fer servir una frase.")
+            elif getpass.getpass("Repeteix-la: ") != nova:
+                print("No coincideixen. Torna-hi.")
+            else:
+                break
         with LOCK:
             CFG["contrasenya"] = hash_contrasenya(nova)
             desa_config()
-        print("Fet. Reinicia el servei: sudo systemctl restart timbre")
+        print("Contrasenya desada.")
         return
 
     if "--prova" in sys.argv:
