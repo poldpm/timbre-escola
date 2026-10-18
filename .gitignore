@@ -1,6 +1,9 @@
 # Dades de funcionament (es creen a la Raspberry; no van al repositori)
 config.json
-config.tmp
+config.bak
+config.malmes-*
+*.tmp
+mpv.log
 estat.json
 historial.jsonl
 historial.log

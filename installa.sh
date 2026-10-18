@@ -1,6 +1,7 @@
 #!/bin/bash
 # Instal·lacio del timbre musical amb web de gestio.
-# Executa-ho des de la carpeta descomprimida:   bash installa.sh
+# Executa-ho des de la carpeta del repositori:   bash installa.sh
+# Per actualitzar: git pull && bash installa.sh  (les dades de ~/timbre no es toquen)
 set -e
 ORIGEN="$(cd "$(dirname "$0")" && pwd)"
 DESTI="$HOME/timbre"

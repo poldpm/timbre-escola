@@ -121,9 +121,10 @@ tools/            demo.sh (servidor de proves sense so), proves-api.sh, captures
 ```
 
 ### Fitxers de dades (a la Raspberry, a `~/timbre/`; estan al `.gitignore`)
-- `config.json`: horari, festius, ajustos, metadades de cançons, mode de selecció i hash de la contrasenya.
-- `estat.json`: `tocades` (les últimes 200 cançons, per no repetir-les) i `periode` (`{mode, clau, canco}`, la cançó del dia o de la setmana).
-- `historial.jsonl`: una línia JSON per cada cop que sona (`t`, `canco`, `motiu`, `segons` i, si és d'horari, `toc`). Es retalla a 2.000 línies en arrencar.
+- `config.json`: horari, festius, ajustos, metadades de cançons, mode de selecció i hash de la contrasenya. Es desa amb `escriu_atomic` (fitxer temporal + `fsync` + `replace`) i, just després, una còpia idèntica a **`config.bak`**. En arrencar, si `config.json` falta o està malmès es fa servir `config.bak`. Un fitxer malmès **no se sobreescriu mai**: es reanomena a `config.malmes-AAAAMMDD-HHMMSS(.json|.bak)`. Motiu: amb una SD i talls de llum, un `config.json` buit feia carregar els valors per defecte i la web quedava **sense contrasenya**.
+- `mpv.log`: errors de l'última reproducció (mpv amb `--msg-level=all=error`).
+- `estat.json` (també amb `escriu_atomic`): `tocades` (les últimes 200 cançons, per no repetir-les) i `periode` (`{mode, clau, canco}`, la cançó del dia o de la setmana).
+- `historial.jsonl`: una línia JSON per cada cop que sona o ho intenta (`t`, `canco`, `motiu`, `segons`, `error` si no ha sonat i, si és d'horari, `toc`). Es retalla a 2.000 línies en arrencar.
 - `musica/`: les cançons (mp3, m4a, ogg, wav, flac, opus, aac).
 - `reserva.mp3`: opcional. Sona si no hi ha cap cançó activa.
 - `.clau_sessio`: secret de les cookies de Flask.
@@ -148,7 +149,12 @@ tools/            demo.sh (servidor de proves sense so), proves-api.sh, captures
 - `motiu_silenci(dia)`: no sona si `actiu=false`, si `silenci_data` és avui o si el dia cau en un festiu.
 - `proper_toc(ara, marge)`: busca fins a 60 dies endavant.
 - El programador dispara quan `moment + retard_inici <= ara` i el toc encara no s'ha fet. Té un `MARGE_RETARD` de 30 s: si la Raspberry arrenca a mig toc, encara toca el temps que queda. Toca durant `durada - (ara - moment)` segons i acaba amb un fos.
-- `SONATS` (en memòria i reconstruït des de l'historial) marca a la pantalla d'Inici quins tocs d'avui "Ha sonat".
+- `SONATS` i `FALLATS` (en memòria i reconstruïts des de l'historial) marquen a Inici quins tocs d'avui "Ha sonat" o "Ha fallat".
+
+### Detecció d'errors de reproducció (afegit el 18/10, a Claude Code)
+- `Reproductor.toca()` engega mpv i espera `COMPROVA_INICI` (1,5 s). Si mpv ja ha acabat, **no ha sonat**: `explica_error_mpv` llegeix `mpv.log` i en treu un missatge en català (sortida d'àudio incorrecta / fitxer malmès / s'ha acabat de seguida). Es registra amb `error`, `segons: 0`, i `toca()` retorna el missatge (si ha anat bé, retorna `None`).
+- Comprovat amb mpv 0.37 real: amb un `--audio-device` inexistent surt en 0,2 s amb codi 2. Amb un fitxer malmès, també codi 2 ("Failed to recognize file format").
+- `/api/toca` respon 400 `No ha sonat: …`. A `/api/estat`, el toc té `estat: "error"` i `error`. La web mostra el xip "Ha fallat", un avís vermell a Inici i el motiu a l'Historial. `--prova` surt amb error.
 
 ### Selecció de cançó (`tria_canco`)
 - `cada_toc`: `tria_aleatoria` tria entre les cançons actives i evita les últimes `min(n_actives // 2, no_repetir)`.
@@ -204,6 +210,11 @@ python3 tools/captures.py <carpeta>     # captures amb Playwright (contrasenya "
 
 ## 7. Estat actual i PENDENTS (18/10/2026)
 
+**Repositori:** https://github.com/poldpm/timbre-escola (branca `main`). La Raspberry s'instal·la amb `git clone` + `bash installa.sh` i s'actualitza amb `git pull && bash installa.sh` (vegeu GUIA.md). `installa.sh` copia `timbre.py` i `web/` a `~/timbre/`, on hi ha les dades. **Ara mateix el repo és públic**: s'ha recomanat a en Pol fer-lo privat (llavors el `git clone` de la Pi necessita un token).
+
+**Riscos detectats a la revisió del 18/10 que encara no s'han tocat:** el filtre `loudnorm` pot endarrerir l'inici uns segons (cal provar-ho a la Pi); els dos rellotges (Theben i Pi) poden desquadrar-se (la protecció de 3 s és petita); els `int()` sense validar a `/api/toca` i `PATCH /api/cancons/<nom>` donen un error 500; `estat.json` es llegeix i s'escriu des de dos fils sense lock; no es comprova l'espai lliure de la SD a les pujades. Si la placa és una Pi 3 B (no B+), la wifi només és de 2,4 GHz.
+
+
 En Pol **ja té la microSD**. La Raspberry Pi 3 l'hi deixa algú (és gratis). En el moment del traspàs, no sabem si ja la té a les mans.
 
 1. **Apuntar l'horari real del Theben** (MENU → PROGRAM → consultar): cada ON i OFF. Durada a la web = OFF − ON − ~5 s.
@@ -229,7 +240,6 @@ En Pol **ja té la microSD**. La Raspberry Pi 3 l'hi deixa algú (és gratis). E
 ## 9. Idees per al futur (n'hem parlat o surten de forma natural)
 
 - **Accés des de fora de l'escola:** Tailscale (gratuït) a la Raspberry.
-- **Desplegament amb git:** clonar aquest repo a la Raspberry i fer que `installa.sh` copiï els fitxers, o fer servir directament el repo + `git pull && sudo systemctl restart timbre`. (Ara mateix `installa.sh` copia `timbre.py` i `web/` a `~/timbre/`.)
 - **Calendari de cançons temàtiques:** una cançó o llista diferent per dates (Nadal, Sant Jordi, final de curs).
 - **Llistes / categories** de cançons.
 - **Avisos per megafonia:** text a veu, o un fitxer pujat per tocar a una hora concreta un sol cop.
