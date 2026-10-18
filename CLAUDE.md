@@ -210,7 +210,7 @@ python3 tools/captures.py <carpeta>     # captures amb Playwright (contrasenya "
 
 ## 7. Estat actual i PENDENTS (18/10/2026)
 
-**Repositori:** https://github.com/poldpm/timbre-escola (branca `main`). La Raspberry s'instal·la amb `git clone` + `bash installa.sh` i s'actualitza amb `git pull && bash installa.sh` (vegeu GUIA.md). `installa.sh` copia `timbre.py` i `web/` a `~/timbre/`, on hi ha les dades. **Ara mateix el repo és públic**: s'ha recomanat a en Pol fer-lo privat (llavors el `git clone` de la Pi necessita un token).
+**Repositori:** https://github.com/poldpm/timbre-escola (branca `main`). La Raspberry s'instal·la amb `git clone` + `bash installa.sh` i s'actualitza amb `git pull && bash installa.sh` (vegeu GUIA.md). `installa.sh` copia `timbre.py` i `web/` a `~/timbre/`, on hi ha les dades. **El repo és públic per decisió d'en Pol** (18/10): se li ha explicat que els privats són gratuïts i ha preferit deixar-lo així. No hi ha secrets, perquè les dades reals són a la Pi i al `.gitignore`. **No pugis mai contrasenyes, IP, dades de la wifi ni dades personals.**
 
 **Riscos detectats a la revisió del 18/10 que encara no s'han tocat:** el filtre `loudnorm` pot endarrerir l'inici uns segons (cal provar-ho a la Pi); els dos rellotges (Theben i Pi) poden desquadrar-se (la protecció de 3 s és petita); els `int()` sense validar a `/api/toca` i `PATCH /api/cancons/<nom>` donen un error 500; `estat.json` es llegeix i s'escriu des de dos fils sense lock; no es comprova l'espai lliure de la SD a les pujades. Si la placa és una Pi 3 B (no B+), la wifi només és de 2,4 GHz.
 
@@ -221,8 +221,9 @@ En Pol **ja té la microSD**. La Raspberry Pi 3 l'hi deixa algú (és gratis). E
 2. **Comprovar que és el rellotge qui treu el JEDIA de standby** (mirar el LED en un toc real).
 3. **Tipus de wifi de la sala:** si és WPA2-Enterprise o té portal captiu, cal cable de xarxa. Sense internet no hi ha hora fiable, perquè la Pi 3 **no té RTC**.
 4. **Connector de l'entrada del JEDIA** on va el Fonestar (RCA o jack) per saber quin cable cal.
-5. Primera instal·lació real seguint `GUIA.md` i un primer toc amb en Pol al costat.
-6. Copiar la cançó actual del pen com a `reserva.mp3`.
+5. **Demanar a informàtica una IP fixa (reserva DHCP)** per a la Raspberry, i connectar-la a la mateixa wifi que el personal. Es donarà l'enllaç `http://IP` a la directora i a qui calgui.
+6. Primera instal·lació real seguint `GUIA.md` i un primer toc amb en Pol al costat.
+7. Copiar la cançó actual del pen com a `reserva.mp3`.
 
 ## 8. Riscos i coses a verificar a la Raspberry real
 
@@ -239,7 +240,7 @@ En Pol **ja té la microSD**. La Raspberry Pi 3 l'hi deixa algú (és gratis). E
 
 ## 9. Idees per al futur (n'hem parlat o surten de forma natural)
 
-- **Accés des de fora de l'escola:** Tailscale (gratuït) a la Raspberry.
+- ~~Accés des de fora de l'escola~~ **DESCARTAT per en Pol (18/10):** només s'hi entra des de la wifi de l'escola. Se li van explicar Tailscale (cal instal·lar l'app a cada usuari) i Tailscale Funnel (enllaç públic, però caldria reforçar el login: límit d'intents, contrasenya llarga, cookies Secure). Ho va trobar massa complicat per a la directora. No ho tornis a proposar si ell no ho demana.
 - **Calendari de cançons temàtiques:** una cançó o llista diferent per dates (Nadal, Sant Jordi, final de curs).
 - **Llistes / categories** de cançons.
 - **Avisos per megafonia:** text a veu, o un fitxer pujat per tocar a una hora concreta un sol cop.
