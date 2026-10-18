@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Timbre · Escorial Vic</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M6 15l7 7' stroke='%23e0003f' stroke-width='7' stroke-linecap='round'/><path d='M13 22L27 8' stroke='%23810023' stroke-width='7' stroke-linecap='round'/></svg>">
+<meta name="theme-color" content="#810023">
+<style>
+:root{
+  /* Colors corporatius Vedruna Escorial Vic (logo): granat #810023 i vermell #E0003F */
+  --bg:#f7f4f3; --panel:#ffffff; --ink:#1d1a1b; --muted:#6b6466; --line:#e8e1e2;
+  --accent:#810023; --accent-ink:#ffffff; --accent-soft:#f6e6eb; --accent-2:#e0003f;
+  --warn:#9a5b00; --warn-soft:#fbf0dc; --danger:#b3261e; --danger-soft:#fbe7e5;
+  --ok:#2f7d32; --ok-soft:#e5f2e5;
+  --radius:14px; --shadow:0 1px 2px rgba(0,0,0,.05),0 2px 10px rgba(0,0,0,.04);
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#151213; --panel:#1f1a1b; --ink:#efe9ea; --muted:#a59c9e; --line:#342c2e;
+    --accent:#f0517c; --accent-ink:#2a0010; --accent-soft:#3b1621; --accent-2:#ff5a85;
+    --warn:#e7b25a; --warn-soft:#33270f; --danger:#f08a80; --danger-soft:#3a1a17;
+    --ok:#7cc77f; --ok-soft:#18301a; --shadow:none;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--font);-webkit-font-smoothing:antialiased;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+button,input,select{font:inherit;color:inherit}
+h1,h2,h3{margin:0;font-weight:700;line-height:1.2}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+
+/* capçalera */
+header{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;gap:12px;height:58px}
+.logo{width:34px;height:34px;display:grid;place-items:center;flex:none}
+.logo svg{width:100%;height:100%}
+.marca{display:flex;align-items:center;gap:10px}
+.marca .txt{line-height:1.15}
+header h1{font-size:17px}
+header small{display:block;color:var(--muted);font-size:12.5px;font-weight:400}
+.rellotge{margin-left:auto;text-align:right;font-family:var(--mono);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.rellotge small{font-family:var(--font);font-size:11.5px}
+
+/* navegació inferior */
+nav{position:fixed;bottom:0;left:0;right:0;z-index:10;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav .wrap{display:flex;padding:0}
+nav button{flex:1;background:none;border:0;padding:9px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11.5px;color:var(--muted);cursor:pointer}
+nav button svg{width:22px;height:22px}
+nav button[aria-current="true"]{color:var(--accent);font-weight:600}
+
+main{padding-top:18px}
+section{display:none}
+section.actiu{display:block}
+.titol{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:6px 0 14px}
+.titol h2{font-size:22px}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+.card h3{font-size:15px;margin-bottom:10px}
+.etiqueta{font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.muted{color:var(--muted)}
+.petit{font-size:13.5px}
+.fila{display:flex;align-items:center;gap:10px}
+.fila.wrap-ok{flex-wrap:wrap}
+.espai{flex:1}
+
+/* botons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px 14px;font-weight:600;font-size:14.5px;cursor:pointer;min-height:40px;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.prim{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.perill{color:var(--danger)}
+.btn.perill.ple{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn.mini{min-height:34px;padding:6px 10px;font-size:13.5px}
+.btn.icona{padding:0;width:40px}
+.btn:disabled{opacity:.5;cursor:default}
+.btn svg{width:18px;height:18px}
+
+/* ara sona / proper */
+.hero{padding:20px}
+.hero .gran{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;margin:4px 0 2px}
+.hero .nom{font-size:18px;font-weight:600;word-break:break-word}
+.hero.sonant{background:linear-gradient(135deg,#810023 0%,#a3002f 60%,#e0003f 130%);color:#fff;border-color:transparent}
+.hero.sonant .etiqueta,.hero.sonant .muted{color:inherit;opacity:.8}
+.barra{height:6px;border-radius:3px;background:rgba(255,255,255,.3);margin:14px 0 12px;overflow:hidden}
+.barra i{display:block;height:100%;background:currentColor;width:0;transition:width .9s linear}
+.hero.sonant .btn{background:transparent;color:inherit;border-color:currentColor}
+.ones{display:inline-flex;gap:3px;align-items:flex-end;height:16px;margin-right:6px}
+.ones i{width:3px;background:currentColor;border-radius:2px;animation:ona 1s ease-in-out infinite}
+.ones i:nth-child(2){animation-delay:.2s}.ones i:nth-child(3){animation-delay:.4s}
+@keyframes ona{0%,100%{height:4px}50%{height:16px}}
+@media (prefers-reduced-motion:reduce){.ones i{animation:none;height:10px}}
+
+/* avisos */
+.avis{border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:14.5px;display:flex;gap:10px;align-items:flex-start}
+.avis.warn{background:var(--warn-soft);color:var(--warn)}
+.avis.danger{background:var(--danger-soft);color:var(--danger)}
+.avis.info{background:var(--accent-soft);color:var(--accent)}
+.avis b{font-weight:700}
+
+/* llista avui */
+.dia{list-style:none;margin:0;padding:0}
+.dia li{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.dia li:first-child{border-top:0}
+.dia .h{font-family:var(--mono);font-weight:600;font-size:15px;width:52px;font-variant-numeric:tabular-nums}
+.dia .n{flex:1;min-width:0}
+.dia .n small{display:block;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip{font-size:12px;font-weight:600;border-radius:99px;padding:3px 9px;white-space:nowrap}
+.chip.sonat{background:var(--ok-soft);color:var(--ok)}
+.chip.pendent{background:var(--accent-soft);color:var(--accent)}
+.chip.ara{background:var(--accent);color:var(--accent-ink)}
+.chip.marca{background:var(--accent-soft);color:var(--accent);margin-left:6px;vertical-align:2px;font-size:11px;padding:2px 8px}
+
+/* mode de selecció */
+.modes{display:grid;gap:8px}
+.mode{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;background:var(--bg)}
+.mode input{accent-color:var(--accent);width:18px;height:18px;margin:2px 0 0;flex:none}
+.mode b{display:block;font-weight:600}
+.mode small{color:var(--muted);font-size:13px}
+.mode:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.seleccio-actual{display:flex;align-items:center;gap:10px;margin-top:12px;padding:12px;border-radius:12px;background:var(--accent-soft);color:var(--accent)}
+.seleccio-actual .t{flex:1;min-width:0}
+.seleccio-actual .t small{display:block;font-size:12.5px;opacity:.85}
+.seleccio-actual .t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seleccio-actual .btn{border-color:currentColor;background:transparent;color:inherit}
+.sel-inici{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);margin:-2px 0 6px}
+.sel-inici b{color:var(--ink);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip.passat,.chip.silenci{background:var(--line);color:var(--muted)}
+.dia li.fet .h,.dia li.fet .n{opacity:.6}
+
+/* interruptor */
+.switch{position:relative;width:46px;height:28px;flex:none}
+.switch input{opacity:0;width:0;height:0;position:absolute}
+.switch span{position:absolute;inset:0;background:var(--line);border-radius:99px;cursor:pointer;transition:.15s}
+.switch span::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:.15s}
+.switch input:checked+span{background:var(--accent)}
+.switch input:checked+span::after{transform:translateX(18px)}
+.switch input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+
+/* formularis */
+input[type=text],input[type=password],input[type=time],input[type=number],input[type=date],input[type=search],select{
+  border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:8px 10px;min-height:40px;width:100%}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+label.camp{display:block;font-size:13px;color:var(--muted);font-weight:600}
+label.camp>input,label.camp>select{margin-top:4px;color:var(--ink);font-weight:400}
+
+/* horari */
+.toc{padding:14px}
+.toc .cap{display:flex;gap:10px;align-items:center}
+.toc .cap input{font-weight:600}
+.toc .temps{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.dies{display:flex;gap:6px}
+.toc .temps .dies-wrap{grid-column:1/-1}
+.dies button{flex:1;min-width:0;max-width:48px;height:38px;padding:0;border-radius:9px;border:1px solid var(--line);background:var(--bg);font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}
+.dies button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.toc.inactiu{opacity:.55}
+.peu-desa{position:sticky;bottom:calc(72px + env(safe-area-inset-bottom));z-index:5;display:none;background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 10px 10px 16px;align-items:center;gap:10px;margin:8px 0 14px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.peu-desa.visible{display:flex}
+.peu-desa .btn{border:0}
+
+/* cançons */
+.pujar{display:block;border:2px dashed var(--line);border-radius:var(--radius);padding:22px 16px;text-align:center;cursor:pointer;transition:.15s;background:var(--panel);margin-bottom:14px}
+.pujar.sobre,.pujar:hover{border-color:var(--accent);background:var(--accent-soft)}
+.pujar svg{width:30px;height:30px;color:var(--accent)}
+.pujar b{display:block;margin:6px 0 2px}
+.progres{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:12px;display:none}
+.progres i{display:block;height:100%;background:var(--accent);width:0}
+.canco{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.canco:first-child{border-top:0}
+.canco .play{width:42px;height:42px;border-radius:50%;border:0;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;cursor:pointer;flex:none}
+.canco .play svg{width:18px;height:18px}
+.canco .play.on{background:var(--accent);color:var(--accent-ink)}
+.canco .info{flex:1;min-width:0}
+.canco .info b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.canco .info small{color:var(--muted);font-size:12.5px}
+.canco.off .info b{color:var(--muted);text-decoration:line-through}
+.mes{background:none;border:0;width:36px;height:36px;border-radius:8px;cursor:pointer;color:var(--muted);flex:none}
+.mes:hover{background:var(--line)}
+.detall{grid-column:1/-1;padding:4px 0 12px 54px;display:none}
+.detall.obert{display:block}
+.detall .fila{margin-top:10px}
+
+/* festius */
+.festiu{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.festiu:first-child{border-top:0}
+.festiu .d{font-weight:600;font-variant-numeric:tabular-nums;min-width:0;flex:1}
+.festiu .d small{display:block;font-weight:400;color:var(--muted)}
+.graella-festiu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.graella-festiu .ample{grid-column:1/-1}
+
+/* historial */
+.hist{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;padding:10px 0;border-top:1px solid var(--line)}
+.hist:first-child{border-top:0}
+.hist .t{font-family:var(--mono);font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.hist .c{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist .m{grid-column:2;color:var(--muted);font-size:13px}
+.grup-dia{margin:16px 0 6px;font-size:13px}
+
+/* ajustos */
+.ajust{display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid var(--line)}
+.ajust:first-child{border-top:0}
+.ajust .t{flex:1}
+.ajust .t small{display:block;color:var(--muted);font-size:13px}
+.ajust input[type=number]{width:84px}
+input[type=range]{width:140px;accent-color:var(--accent)}
+
+/* entrada */
+#login{position:fixed;inset:0;z-index:50;background:var(--bg);display:none;place-items:center;padding:16px}
+#login.visible{display:grid}
+#login .card{width:100%;max-width:360px;padding:26px}
+#login .logo{width:56px;height:56px;margin-bottom:14px}
+#login h2{font-size:22px;margin-bottom:4px}
+#login form{margin-top:18px;display:grid;gap:12px}
+.error{color:var(--danger);font-size:14px;min-height:20px}
+
+#toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14.5px;font-weight:600;transition:.2s;z-index:60;pointer-events:none;max-width:calc(100% - 32px)}
+#toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.error{background:var(--danger);color:#fff}
+
+.buit{text-align:center;padding:26px 10px;color:var(--muted)}
+.amagat{display:none!important}
+@media (min-width:700px){
+  .toc .temps{grid-template-columns:150px 150px 1fr;align-items:end}
+  .toc .temps .dies-wrap{grid-column:auto}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 32 32"><path d="M6 15.5l7 7" stroke="#e0003f" stroke-width="7" stroke-linecap="round"/><path d="M13 22.5L27 8.5" stroke="#810023" stroke-width="7" stroke-linecap="round"/></symbol>
+  <symbol id="i-nota" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="16" r="3" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-casa" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-rellotge" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-calendari" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-llista" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-ajustos" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="17" r="2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z" fill="currentColor"/></symbol>
+  <symbol id="i-pausa" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2" fill="currentColor"/></symbol>
+  <symbol id="i-pujar" viewBox="0 0 24 24"><path d="M12 16V4m0 0-5 5m5-5 5 5M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-paperera" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-punts" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="19" cy="12" r="1.8" fill="currentColor"/></symbol>
+  <symbol id="i-mes" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-altaveu" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+</svg>
+
+<div id="login">
+  <div class="card">
+    <div class="logo"><svg><use href="#i-check"/></svg></div>
+    <h2 id="login-titol">Timbre de l'escola</h2>
+    <p class="muted" id="login-text" style="margin:0">Entra amb la contrasenya per gestionar la megafonia.</p>
+    <form id="login-form">
+      <input type="password" id="login-pass" placeholder="Contrasenya" autocomplete="current-password" required>
+      <input type="password" id="login-pass2" placeholder="Repeteix la contrasenya" autocomplete="new-password" class="amagat">
+      <div class="error" id="login-error"></div>
+      <button class="btn prim" type="submit" id="login-btn">Entra</button>
+    </form>
+  </div>
+</div>
+
+<header>
+  <div class="wrap">
+    <div class="marca"><div class="logo"><svg><use href="#i-check"/></svg></div>
+    <div class="txt"><h1>Timbre musical</h1><small>Vedruna Escorial Vic</small></div></div>
+    <div class="rellotge"><span id="hora">--:--:--</span><small id="sinc" class="muted">&nbsp;</small></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- INICI -->
+  <section id="s-inici" class="actiu">
+    <div id="avisos"></div>
+    <div id="hero" class="card hero"></div>
+
+    <div class="card">
+      <div class="fila" style="margin-bottom:6px">
+        <h3 style="margin:0">Avui</h3><span class="espai"></span><span class="muted petit" id="avui-data"></span>
+      </div>
+      <div class="sel-inici" id="sel-inici"></div>
+      <ul class="dia" id="avui"></ul>
+    </div>
+
+    <div class="card">
+      <h3>Control</h3>
+      <div class="ajust">
+        <div class="t"><b>Timbre actiu</b><small>Si l'apagues, no sonarà cap toc fins que el tornis a activar.</small></div>
+        <label class="switch"><input type="checkbox" id="sw-actiu"><span></span></label>
+      </div>
+      <div class="ajust">
+        <div class="t"><b>Silenci només avui</b><small>Per a dies d'excursió, colònies o proves. Demà torna a sonar sol.</small></div>
+        <label class="switch"><input type="checkbox" id="sw-silenci"><span></span></label>
+      </div>
+      <div class="ajust">
+        <div class="t"><b>Toca una cançó ara</b><small>Només se sentirà si l'amplificador està engegat (botó POWER del JEDIA).</small></div>
+        <select id="ara-segons" style="width:auto"><option value="20">20 s</option><option value="30" selected>30 s</option><option value="60">1 min</option><option value="120">2 min</option></select>
+        <button class="btn prim icona" id="btn-toca-ara" aria-label="Toca una cançó ara"><svg><use href="#i-play"/></svg></button>
+      </div>
+    </div>
+    <p class="muted petit" style="text-align:center" id="peu-info"></p>
+  </section>
+
+  <!-- HORARI -->
+  <section id="s-horari">
+    <div class="titol"><h2>Horari</h2><button class="btn mini" id="btn-nou-toc"><svg><use href="#i-mes"/></svg>Afegeix</button></div>
+    <div class="avis warn"><span>⚠</span><span>Qui engega l'amplificador és el <b>rellotge de la caixa blanca</b>. Si canvies una hora aquí, canvia-la també al rellotge, o no se sentirà res.</span></div>
+    <div id="tocs"></div>
+    <div class="peu-desa" id="desa-horari"><span class="espai">Tens canvis sense desar</span><button class="btn mini" id="desfes-horari" style="background:transparent;color:inherit">Desfés</button><button class="btn prim mini" id="btn-desa-horari">Desa l'horari</button></div>
+  </section>
+
+  <!-- CANÇONS -->
+  <section id="s-cancons">
+    <div class="titol"><h2>Cançons</h2><span class="muted petit" id="n-cancons"></span></div>
+    <div class="card">
+      <h3>Com sonen les cançons</h3>
+      <div class="modes" id="modes">
+        <label class="mode"><input type="radio" name="mode" value="cada_toc"><span><b>Una de diferent a cada toc</b><small>Cada vegada que sona el timbre, una cançó nova.</small></span></label>
+        <label class="mode"><input type="radio" name="mode" value="dia"><span><b>La mateixa tot el dia</b><small>Sona la mateixa a tots els tocs del dia; l'endemà, una altra.</small></span></label>
+        <label class="mode"><input type="radio" name="mode" value="setmana"><span><b>La mateixa tota la setmana</b><small>Canvia sola cada dilluns.</small></span></label>
+        <label class="mode"><input type="radio" name="mode" value="fixa"><span><b>Sempre la mateixa</b><small>Una cançó concreta fins que ho canviïs (Nadal, Sant Jordi…).</small></span></label>
+      </div>
+      <div id="sel-fixa" class="amagat" style="margin-top:10px"><select id="canco-fixa"></select></div>
+      <div id="sel-actual"></div>
+    </div>
+    <label class="pujar" id="zona-pujar">
+      <svg><use href="#i-pujar"/></svg>
+      <b>Afegeix cançons</b>
+      <span class="muted petit">Toca aquí o arrossega-hi fitxers MP3, M4A, WAV…</span>
+      <input type="file" id="fitxers" multiple accept="audio/*,.mp3,.m4a,.ogg,.wav,.flac,.opus,.aac" hidden>
+      <div class="progres" id="progres"><i></i></div>
+    </label>
+    <input type="search" id="cerca" placeholder="Cerca una cançó…" style="margin-bottom:12px">
+    <div class="card" style="padding:4px 16px"><div id="cancons"></div></div>
+    <p class="muted petit">Les cançons desactivades no sonen a l'horari, però no s'esborren. «Comença al segon» serveix per saltar-se una introducció lenta.</p>
+  </section>
+
+  <!-- FESTIUS -->
+  <section id="s-festius">
+    <div class="titol"><h2>Festius i vacances</h2></div>
+    <form class="card" id="form-festiu">
+      <h3>Afegeix un dia o unes vacances</h3>
+      <div class="graella-festiu">
+        <label class="camp">Des del dia<input type="date" id="f-inici" required></label>
+        <label class="camp">Fins al dia (opcional)<input type="date" id="f-fi"></label>
+        <label class="camp ample">Nom<input type="text" id="f-nom" placeholder="p. ex. Vacances de Nadal" maxlength="60"></label>
+      </div>
+      <div class="fila" style="margin-top:12px"><span class="espai"></span><button class="btn prim" type="submit"><svg><use href="#i-mes"/></svg>Afegeix</button></div>
+    </form>
+    <div class="card" style="padding:4px 16px"><div id="festius"></div></div>
+    <details id="festius-passats-wrap" class="amagat"><summary class="muted petit" style="cursor:pointer;margin-bottom:10px">Festius ja passats</summary><div class="card" style="padding:4px 16px"><div id="festius-passats"></div></div></details>
+  </section>
+
+  <!-- HISTORIAL -->
+  <section id="s-historial">
+    <div class="titol"><h2>Historial</h2><span class="muted petit">Últims tocs</span></div>
+    <div id="historial"></div>
+  </section>
+
+  <!-- AJUSTOS -->
+  <section id="s-ajustos">
+    <div class="titol"><h2>Ajustos</h2></div>
+    <form class="card" id="form-ajustos">
+      <h3>So</h3>
+      <div class="ajust"><div class="t"><b>Volum de la Raspberry</b><small>Millor ajustar el volum general a l'amplificador.</small></div><input type="range" min="0" max="100" id="a-volum"><span id="a-volum-v" style="width:42px;text-align:right" class="petit"></span></div>
+      <div class="ajust"><div class="t"><b>Iguala el volum de les cançons</b><small>Evita que unes sonin molt més fortes que d'altres.</small></div><label class="switch"><input type="checkbox" id="a-normalitza"><span></span></label></div>
+      <div class="ajust"><div class="t"><b>Espera abans de començar</b><small>Segons després de l'hora, perquè l'amplificador s'engegui.</small></div><input type="number" min="0" max="20" step="0.5" id="a-retard"></div>
+      <div class="ajust"><div class="t"><b>Durada del fos final</b><small>Segons que tarda a apagar-se la música.</small></div><input type="number" min="0" max="10" step="0.5" id="a-fos"></div>
+      <div class="ajust"><div class="t"><b>No repetir les últimes</b><small>Quantes cançons recents s'eviten (fins a la meitat de la llista).</small></div><input type="number" min="0" max="100" id="a-norepetir"></div>
+      <div class="fila" style="margin-top:12px"><span class="espai"></span><button class="btn prim" type="submit">Desa els ajustos</button></div>
+    </form>
+
+    <form class="card" id="form-pass">
+      <h3>Contrasenya de la web</h3>
+      <div style="display:grid;gap:10px">
+        <input type="password" id="p-actual" placeholder="Contrasenya actual" autocomplete="current-password" required>
+        <input type="password" id="p-nova" placeholder="Contrasenya nova" autocomplete="new-password" required minlength="4">
+      </div>
+      <div class="fila" style="margin-top:12px"><span class="espai"></span><button class="btn" type="submit">Canvia-la</button></div>
+    </form>
+
+    <div class="card">
+      <h3>Sistema</h3>
+      <div class="ajust"><div class="t"><b>Còpia de seguretat</b><small>Descarrega l'horari, els festius i els ajustos.</small></div><a class="btn mini" href="/api/copia">Descarrega</a></div>
+      <div class="ajust"><div class="t"><b>Tanca la sessió</b><small>En aquest dispositiu.</small></div><button class="btn mini perill" id="btn-sortir">Surt</button></div>
+      <p class="muted petit" id="info-sistema" style="margin:10px 0 0"></p>
+    </div>
+  </section>
+</main>
+
+<nav>
+  <div class="wrap">
+    <button data-s="inici" aria-current="true"><svg><use href="#i-casa"/></svg>Inici</button>
+    <button data-s="horari"><svg><use href="#i-rellotge"/></svg>Horari</button>
+    <button data-s="cancons"><svg><use href="#i-nota"/></svg>Cançons</button>
+    <button data-s="festius"><svg><use href="#i-calendari"/></svg>Festius</button>
+    <button data-s="historial"><svg><use href="#i-llista"/></svg>Historial</button>
+    <button data-s="ajustos"><svg><use href="#i-ajustos"/></svg>Ajustos</button>
+  </div>
+</nav>
+
+<div id="toast"></div>
+<audio id="previsualitza" preload="none"></audio>
+
+<script>
+const $ = s => document.querySelector(s);
+const DIES = ["Dl","Dt","Dc","Dj","Dv","Ds","Dg"];
+const DIES_LLARGS = ["dilluns","dimarts","dimecres","dijous","divendres","dissabte","diumenge"];
+const MESOS = ["gener","febrer","març","abril","maig","juny","juliol","agost","setembre","octubre","novembre","desembre"];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dos = n => String(n).padStart(2,"0");
+const curt = n => String(n ?? "").replace(/\.[^.]+$/, "");
+const NOM_PERIODE = { dia: "d'avui", setmana: "d'aquesta setmana", fixa: "fixa" };
+const CHIP_PERIODE = { dia: "Avui", setmana: "Aquesta setmana", fixa: "Sempre" };
+
+let estat = null, config = null, offsetRellotge = 0, seccio = "inici";
+let tocsEdit = null, tocsDirty = false;
+
+// ---------------------------------------------------------------- API
+async function api(cami, opts = {}) {
+  const o = { headers: {}, ...opts };
+  if (o.json !== undefined) { o.body = JSON.stringify(o.json); o.headers["Content-Type"] = "application/json"; delete o.json; }
+  const r = await fetch(cami, o);
+  let d = {};
+  try { d = await r.json(); } catch {}
+  if (r.status === 401 && cami !== "/api/login") { mostraLogin(); throw new Error("login"); }
+  if (!r.ok) throw new Error(d.error || "Error de connexió");
+  return d;
+}
+function toast(text, error = false) {
+  const t = $("#toast");
+  t.textContent = text; t.className = "visible" + (error ? " error" : "");
+  clearTimeout(t._t); t._t = setTimeout(() => t.className = "", 2600);
+}
+async function intenta(fn, ok) {
+  try { const r = await fn(); if (ok) toast(ok); return r; }
+  catch (e) { if (e.message !== "login") toast(e.message, true); throw e; }
+}
+
+// ---------------------------------------------------------------- LOGIN
+let configurada = true;
+async function mostraLogin() {
+  const s = await (await fetch("/api/sessio")).json();
+  configurada = s.configurada;
+  $("#login-pass2").classList.toggle("amagat", configurada);
+  $("#login-pass2").required = !configurada;
+  $("#login-titol").textContent = configurada ? "Timbre de l'escola" : "Benvingut/da!";
+  $("#login-text").textContent = configurada ? "Entra amb la contrasenya per gestionar la megafonia."
+    : "Primer de tot, tria una contrasenya per protegir la web.";
+  $("#login-btn").textContent = configurada ? "Entra" : "Desa i entra";
+  $("#login").classList.add("visible");
+  $("#login-pass").focus();
+}
+$("#login-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const p = $("#login-pass").value;
+  $("#login-error").textContent = "";
+  if (!configurada && p !== $("#login-pass2").value) { $("#login-error").textContent = "Les contrasenyes no coincideixen"; return; }
+  try {
+    await api(configurada ? "/api/login" : "/api/configura", { method: "POST", json: { contrasenya: p } });
+    $("#login").classList.remove("visible");
+    $("#login-pass").value = $("#login-pass2").value = "";
+    inicia();
+  } catch (err) { $("#login-error").textContent = err.message; }
+});
+
+// ---------------------------------------------------------------- NAVEGACIÓ
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => vesA(b.dataset.s)));
+function vesA(s) {
+  if (seccio === "horari" && tocsDirty && s !== "horari" && !confirm("Tens canvis a l'horari sense desar. Vols sortir igualment?")) return;
+  if (seccio === "horari" && s !== "horari") { tocsDirty = false; tocsEdit = null; }
+  seccio = s;
+  document.querySelectorAll("nav button").forEach(b => b.setAttribute("aria-current", b.dataset.s === s));
+  document.querySelectorAll("main section").forEach(x => x.classList.toggle("actiu", x.id === "s-" + s));
+  window.scrollTo(0, 0);
+  if (location.hash !== "#" + s) history.replaceState(null, "", "#" + s);
+  ({ inici: refrescaEstat, horari: carregaHorari, cancons: carregaCancons, festius: carregaFestius,
+     historial: carregaHistorial, ajustos: carregaAjustos })[s]();
+}
+
+// ---------------------------------------------------------------- RELLOTGE
+function araServidor() { return new Date(Date.now() + offsetRellotge); }
+setInterval(() => {
+  if (!estat) return;
+  const a = araServidor();
+  $("#hora").textContent = `${dos(a.getHours())}:${dos(a.getMinutes())}:${dos(a.getSeconds())}`;
+  if (seccio === "inici") pintaHero();
+}, 1000);
+
+function durada(s) {
+  s = Math.max(0, Math.round(s));
+  const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), ss = s % 60;
+  if (d) return `${d} d ${h} h`;
+  if (h) return `${h} h ${dos(m)} min`;
+  if (m) return `${m} min ${dos(ss)} s`;
+  return `${ss} s`;
+}
+function dataLlarga(d) { return `${DIES_LLARGS[(d.getDay() + 6) % 7]} ${d.getDate()} de ${MESOS[d.getMonth()]}`.replace(/de ([aeiouà])/i, "d'$1"); }
+function segons(s) { if (s == null) return ""; return `${Math.floor(s / 60)}:${dos(s % 60)}`; }
+
+// ---------------------------------------------------------------- INICI
+let ultimEstat = 0;
+async function refrescaEstat() {
+  try {
+    const t0 = Date.now();
+    estat = await api("/api/estat");
+    offsetRellotge = new Date(estat.ara).getTime() - (t0 + Date.now()) / 2;
+    ultimEstat = Date.now();
+    pintaInici();
+  } catch {}
+}
+setInterval(() => { if (!$("#login").classList.contains("visible") && (seccio === "inici" || Date.now() - ultimEstat > 15000)) refrescaEstat(); }, 3000);
+
+function pintaInici() {
+  const e = estat;
+  $("#sinc").innerHTML = e.sincronitzada === false ? '<span style="color:var(--danger)">hora no sincronitzada</span>' : "hora per internet ✓";
+  // avisos
+  let av = "";
+  if (e.demo) av += `<div class="avis info"><span>ℹ</span><span>Mode de proves: no surt so.</span></div>`;
+  if (e.sincronitzada === false) av += `<div class="avis danger"><span>⚠</span><span><b>L'hora no està sincronitzada.</b> Comprova que la Raspberry té internet: sense, podria sonar a deshora.</span></div>`;
+  if (!e.n_actives) av += `<div class="avis warn"><span>⚠</span><span><b>No hi ha cap cançó activa.</b> ${e.reserva ? "Sonarà la cançó de reserva." : "No sonarà res!"} <a href="#cancons" onclick="vesA('cancons');return false" style="color:inherit;font-weight:700">Afegeix-ne</a></span></div>`;
+  if (!e.actiu) av += `<div class="avis danger"><span>⏸</span><span><b>El timbre està aturat.</b> No sonarà fins que el tornis a activar.</span></div>`;
+  else if (e.silenci_avui) av += `<div class="avis warn"><span>🔇</span><span><b>Avui no sona:</b> ${esc(e.silenci_avui)}.</span></div>`;
+  $("#avisos").innerHTML = av;
+
+  const avui = araServidor();
+  $("#avui-data").textContent = dataLlarga(avui);
+  $("#avui").innerHTML = e.avui.length ? e.avui.map(t => {
+    const txt = { sonat: "Ha sonat", pendent: "Pendent", ara: "Ara", passat: "No ha sonat", silenci: "Silenci" }[t.estat];
+    return `<li class="${["sonat","passat","silenci"].includes(t.estat) ? "fet" : ""}">
+      <span class="h">${t.hora}</span>
+      <span class="n">${esc(t.nom)}<small>${t.canco ? "♪ " + esc(t.canco.replace(/\.[^.]+$/, "")) : durada(t.durada)}</small></span>
+      <span class="chip ${t.estat}">${txt}</span></li>`;
+  }).join("") : `<li class="muted">Avui no hi ha cap toc programat.</li>`;
+
+  const sel = e.seleccio;
+  $("#sel-inici").innerHTML = sel.mode === "cada_toc" ? `<span>♪ Una cançó diferent a cada toc</span>`
+    : sel.canco ? `<span>♪</span><span style="white-space:nowrap">${sel.mode === "fixa" ? "Sempre sona:" : "Cançó " + NOM_PERIODE[sel.mode] + ":"}</span><b>${esc(curt(sel.canco))}</b>`
+      + (sel.mode !== "fixa" ? `<span class="espai"></span><button class="btn mini" onclick="canviaPeriode()">Canvia-la</button>` : "")
+    : `<span>♪ Encara no hi ha cap cançó</span>`;
+  $("#sw-actiu").checked = e.actiu;
+  $("#sw-silenci").checked = e.silenci_data;
+  $("#sw-silenci").disabled = !e.actiu;
+  $("#peu-info").innerHTML = `${e.n_actives} de ${e.n_cancons} cançons actives${e.ip ? ` · <span style="font-family:var(--mono)">http://${esc(e.ip)}</span>` : ""}`;
+  pintaHero();
+}
+
+function pintaHero() {
+  const e = estat, h = $("#hero");
+  if (e.sonant) {
+    const tr = e.sonant.transcorregut + (Date.now() - ultimEstat) / 1000;
+    const pct = Math.min(100, tr / e.sonant.total * 100);
+    const nou = `<div class="etiqueta"><span class="ones"><i></i><i></i><i></i></span>Ara sona · ${esc(e.sonant.motiu)}</div>
+      <div class="nom" style="font-size:22px;margin-top:8px">${esc(e.sonant.canco.replace(/\.[^.]+$/, ""))}</div>
+      <div class="barra"><i style="width:${pct}%"></i></div>
+      <div class="fila"><span class="muted petit">Queden ${durada(e.sonant.total - tr)}</span><span class="espai"></span>
+      <button class="btn mini" onclick="atura()"><svg><use href="#i-stop"/></svg>Atura</button></div>`;
+    if (!h.classList.contains("sonant") || h.dataset.c !== e.sonant.canco) { h.innerHTML = nou; h.dataset.c = e.sonant.canco; }
+    else { h.querySelector(".barra i").style.width = pct + "%"; h.querySelector(".muted").textContent = `Queden ${durada(e.sonant.total - tr)}`; }
+    h.className = "card hero sonant";
+    return;
+  }
+  h.className = "card hero"; h.dataset.c = "";
+  if (!e.proper) { h.innerHTML = `<div class="etiqueta">Proper toc</div><div class="nom" style="margin-top:6px">No n'hi ha cap de programat</div>`; return; }
+  const m = new Date(e.proper.moment), falta = (m - araServidor()) / 1000;
+  const avui = araServidor().toDateString() === m.toDateString();
+  const dema = new Date(araServidor().getTime() + 86400000).toDateString() === m.toDateString();
+  const quan = avui ? "Avui" : dema ? "Demà" : dataLlarga(m).replace(/^./, c => c.toUpperCase());
+  h.innerHTML = `<div class="etiqueta">Proper toc</div>
+    <div class="gran">${dos(m.getHours())}:${dos(m.getMinutes())}</div>
+    <div class="nom">${esc(e.proper.nom)}</div>
+    <div class="muted petit" style="margin-top:4px">${quan} · ${falta > 0 ? "d'aquí " + durada(falta) : "ara mateix"}</div>`;
+}
+
+async function canviaPeriode(nom) {
+  const r = await intenta(() => api("/api/periode", { method: "POST", json: nom ? { canco: nom } : {} }));
+  toast("Ara toca: " + curt(r.canco));
+  refrescaEstat(); if (seccio === "cancons") carregaCancons();
+}
+async function atura() { await intenta(() => api("/api/atura", { method: "POST" }), "Aturant…"); setTimeout(refrescaEstat, 1800); }
+$("#sw-actiu").addEventListener("change", async e => {
+  const v = e.target.checked;
+  if (!v && !confirm("Segur que vols aturar el timbre? No sonarà fins que el tornis a activar.")) { e.target.checked = true; return; }
+  await intenta(() => api("/api/config", { method: "PATCH", json: { actiu: v } }), v ? "Timbre activat" : "Timbre aturat"); refrescaEstat();
+});
+$("#sw-silenci").addEventListener("change", async e => {
+  await intenta(() => api("/api/config", { method: "PATCH", json: { silenci_avui: e.target.checked } }), e.target.checked ? "Avui no sonarà" : "Avui torna a sonar"); refrescaEstat();
+});
+$("#btn-toca-ara").addEventListener("click", async () => {
+  const r = await intenta(() => api("/api/toca", { method: "POST", json: { segons: +$("#ara-segons").value } }));
+  toast("Sona: " + r.canco.replace(/\.[^.]+$/, "")); setTimeout(refrescaEstat, 400);
+});
+
+// ---------------------------------------------------------------- HORARI
+async function carregaHorari() {
+  if (tocsDirty) return;
+  config = await api("/api/config");
+  tocsEdit = structuredClone(config.tocs);
+  pintaTocs();
+}
+function marcaDirty(v = true) { tocsDirty = v; $("#desa-horari").classList.toggle("visible", v); }
+function pintaTocs() {
+  $("#tocs").innerHTML = tocsEdit.length ? tocsEdit.map((t, i) => `
+    <div class="card toc ${t.actiu ? "" : "inactiu"}" data-i="${i}">
+      <div class="cap">
+        <input type="text" value="${esc(t.nom)}" data-k="nom" maxlength="60" aria-label="Nom del toc">
+        <label class="switch" title="Actiu"><input type="checkbox" data-k="actiu" ${t.actiu ? "checked" : ""}><span></span></label>
+      </div>
+      <div class="temps">
+        <label class="camp">Hora<input type="time" value="${t.hora}" data-k="hora" required></label>
+        <label class="camp">Durada (segons)<input type="number" min="5" max="900" value="${t.durada}" data-k="durada"></label>
+        <div class="dies-wrap"><span class="camp" style="display:block;margin-bottom:4px">Dies</span>
+          <div class="dies">${DIES.map((d, j) => `<button type="button" data-dia="${j}" aria-pressed="${t.dies.includes(j)}">${d}</button>`).join("")}</div></div>
+      </div>
+      <div class="fila"><span class="muted petit espai">${t.dies.length ? "" : "⚠ Sense cap dia, no sonarà mai"}</span>
+        <button class="btn mini perill" data-esborra><svg><use href="#i-paperera"/></svg>Esborra</button></div>
+    </div>`).join("") : `<div class="card buit">Encara no hi ha cap toc. Afegeix-ne un.</div>`;
+}
+$("#tocs").addEventListener("input", e => {
+  const c = e.target.closest(".toc"); if (!c) return;
+  const t = tocsEdit[c.dataset.i], k = e.target.dataset.k; if (!k) return;
+  t[k] = k === "actiu" ? e.target.checked : k === "durada" ? +e.target.value : e.target.value;
+  if (k === "actiu") c.classList.toggle("inactiu", !t.actiu);
+  marcaDirty();
+});
+$("#tocs").addEventListener("click", e => {
+  const c = e.target.closest(".toc"); if (!c) return;
+  const t = tocsEdit[c.dataset.i];
+  const dia = e.target.closest("[data-dia]");
+  if (dia) {
+    const j = +dia.dataset.dia;
+    t.dies = t.dies.includes(j) ? t.dies.filter(x => x !== j) : [...t.dies, j].sort();
+    dia.setAttribute("aria-pressed", t.dies.includes(j));
+    c.querySelector(".fila .muted").textContent = t.dies.length ? "" : "⚠ Sense cap dia, no sonarà mai";
+    marcaDirty();
+  }
+  if (e.target.closest("[data-esborra]")) { tocsEdit.splice(c.dataset.i, 1); pintaTocs(); marcaDirty(); }
+});
+$("#btn-nou-toc").addEventListener("click", () => {
+  tocsEdit.push({ nom: "", hora: "12:00", durada: 60, dies: [0,1,2,3,4], actiu: true });
+  pintaTocs(); marcaDirty();
+  const ultim = $("#tocs").lastElementChild; ultim.scrollIntoView({ behavior: "smooth", block: "center" }); ultim.querySelector("input").focus();
+});
+$("#desfes-horari").addEventListener("click", () => { marcaDirty(false); carregaHorari(); });
+$("#btn-desa-horari").addEventListener("click", async () => {
+  const hores = tocsEdit.map(t => t.hora);
+  if (hores.some(h => !h)) return toast("Hi ha un toc sense hora", true);
+  const repetida = hores.find((h, i) => hores.indexOf(h) !== i);
+  if (repetida && !confirm(`Hi ha dos tocs a les ${repetida}. Vols desar igualment?`)) return;
+  config = await intenta(() => api("/api/config", { method: "PATCH", json: { tocs: tocsEdit } }), "Horari desat. Recorda el rellotge!");
+  tocsEdit = structuredClone(config.tocs); marcaDirty(false); pintaTocs();
+});
+window.addEventListener("beforeunload", e => { if (tocsDirty) { e.preventDefault(); e.returnValue = ""; } });
+
+// ---------------------------------------------------------------- CANÇONS
+let cancons = [], obertes = new Set(), sonantPrev = null, seleccio = { mode: "cada_toc", canco: null };
+async function carregaCancons() {
+  const d = await api("/api/cancons");
+  cancons = d.cancons; seleccio = d.seleccio;
+  pintaSeleccio(); pintaCancons();
+}
+function pintaSeleccio() {
+  document.querySelectorAll("#modes input").forEach(r => r.checked = r.value === seleccio.mode);
+  const fixa = seleccio.mode === "fixa" || $("#modes input[value=fixa]").checked;
+  $("#sel-fixa").classList.toggle("amagat", !fixa);
+  $("#canco-fixa").innerHTML = `<option value="">Tria quina cançó ha de sonar sempre…</option>` +
+    cancons.map(c => `<option value="${esc(c.nom)}" ${seleccio.mode === "fixa" && c.nom === seleccio.canco ? "selected" : ""}>${esc(curt(c.nom))}</option>`).join("");
+  $("#sel-actual").innerHTML = (seleccio.mode === "dia" || seleccio.mode === "setmana") && seleccio.canco ? `
+    <div class="seleccio-actual"><div class="t"><small>Cançó ${NOM_PERIODE[seleccio.mode]}</small><b>${esc(curt(seleccio.canco))}</b></div>
+    <button class="btn mini" onclick="canviaPeriode()">Canvia-la</button></div>` : "";
+}
+async function desaSeleccio(mode, canco_fixa) {
+  await intenta(() => api("/api/config", { method: "PATCH", json: { seleccio: { mode, canco_fixa } } }),
+    { cada_toc: "Una de diferent a cada toc", dia: "La mateixa tot el dia", setmana: "La mateixa tota la setmana", fixa: "Sona sempre: " + curt(canco_fixa) }[mode]);
+  carregaCancons(); refrescaEstat();
+}
+$("#modes").addEventListener("change", e => {
+  const mode = e.target.value;
+  if (mode === "fixa") {
+    $("#sel-fixa").classList.remove("amagat"); $("#sel-actual").innerHTML = "";
+    if (seleccio.mode !== "fixa") { $("#canco-fixa").value = ""; $("#canco-fixa").focus(); toast("Ara tria quina cançó"); }
+    return;
+  }
+  desaSeleccio(mode, null);
+});
+$("#canco-fixa").addEventListener("change", e => { if (e.target.value) desaSeleccio("fixa", e.target.value); });
+function pintaCancons() {
+  const q = $("#cerca").value.trim().toLowerCase();
+  const actives = cancons.filter(c => c.activa).length;
+  $("#n-cancons").textContent = `${actives} actives de ${cancons.length}`;
+  const llista = cancons.filter(c => c.nom.toLowerCase().includes(q));
+  $("#cancons").innerHTML = llista.length ? llista.map(c => {
+    const nom = c.nom.replace(/\.[^.]+$/, "");
+    const info = [c.durada != null ? segons(c.durada) : null, (c.mida / 1048576).toFixed(1) + " MB", c.vegades ? `ha sonat ${c.vegades} ${c.vegades == 1 ? "cop" : "cops"}` : null, c.inici ? `comença al s. ${c.inici}` : null].filter(Boolean).join(" · ");
+    return `<div data-nom="${esc(c.nom)}">
+      <div class="canco ${c.activa ? "" : "off"}">
+        <button class="play ${sonantPrev === c.nom ? "on" : ""}" data-prev aria-label="Escolta ${esc(nom)}"><svg><use href="#i-${sonantPrev === c.nom ? "pausa" : "play"}"/></svg></button>
+        <div class="info"><b title="${esc(c.nom)}">${esc(nom)}${c.nom === seleccio.canco && seleccio.mode !== "cada_toc" ? `<span class="chip marca">${CHIP_PERIODE[seleccio.mode]}</span>` : ""}</b><small>${info}</small></div>
+        <label class="switch" title="Activa"><input type="checkbox" data-activa ${c.activa ? "checked" : ""}><span></span></label>
+        <button class="mes" data-obre aria-label="Més opcions"><svg width="20" height="20"><use href="#i-punts"/></svg></button>
+      </div>
+      <div class="detall ${obertes.has(c.nom) ? "obert" : ""}">
+        <div class="fila wrap-ok">
+          <label class="camp" style="display:flex;align-items:center;gap:8px;font-weight:600">Comença al segon <input type="number" min="0" max="3600" value="${c.inici}" data-inici style="width:84px;margin:0"></label>
+        </div>
+        <div class="fila wrap-ok">
+          <button class="btn mini" data-toca><svg><use href="#i-altaveu"/></svg>Toca-la ara per megafonia</button>
+          ${seleccio.mode !== "cada_toc" && c.nom !== seleccio.canco ? `<button class="btn mini" data-tria><svg><use href="#i-nota"/></svg>${{ dia: "Posa-la per a avui", setmana: "Posa-la per a aquesta setmana", fixa: "Fes que soni sempre aquesta" }[seleccio.mode]}</button>` : ""}
+          <button class="btn mini perill" data-esborra><svg><use href="#i-paperera"/></svg>Esborra</button>
+        </div>
+      </div></div>`;
+  }).join("") : `<div class="buit">${cancons.length ? "Cap cançó coincideix amb la cerca." : "Encara no hi ha cap cançó. Afegeix-ne amb el botó de dalt."}</div>`;
+}
+$("#cerca").addEventListener("input", pintaCancons);
+$("#cancons").addEventListener("click", async e => {
+  const w = e.target.closest("[data-nom]"); if (!w) return;
+  const nom = w.dataset.nom, c = cancons.find(x => x.nom === nom), url = `/api/cancons/${encodeURIComponent(nom)}`;
+  if (e.target.closest("[data-obre]")) { obertes.has(nom) ? obertes.delete(nom) : obertes.add(nom); w.querySelector(".detall").classList.toggle("obert"); }
+  if (e.target.closest("[data-prev]")) {
+    const a = $("#previsualitza");
+    if (sonantPrev === nom) { a.pause(); sonantPrev = null; }
+    else { a.src = url + "/audio"; a.currentTime = 0; a.addEventListener("loadedmetadata", () => { a.currentTime = c.inici || 0; }, { once: true }); a.play().catch(() => toast("No es pot reproduir", true)); sonantPrev = nom; }
+    pintaCancons();
+  }
+  if (e.target.closest("[data-tria]")) {
+    if (seleccio.mode === "fixa") await desaSeleccio("fixa", nom); else await canviaPeriode(nom);
+  }
+  if (e.target.closest("[data-toca]")) {
+    await intenta(() => api("/api/toca", { method: "POST", json: { canco: nom, segons: 30 } }), "Sona per megafonia (30 s)");
+  }
+  if (e.target.closest("[data-esborra]")) {
+    if (!confirm(`Segur que vols esborrar «${nom}»? No es pot desfer.`)) return;
+    await intenta(() => api(url, { method: "DELETE" }), "Cançó esborrada");
+    if (sonantPrev === nom) { $("#previsualitza").pause(); sonantPrev = null; }
+    carregaCancons();
+  }
+});
+$("#cancons").addEventListener("change", async e => {
+  const w = e.target.closest("[data-nom]"); if (!w) return;
+  const nom = w.dataset.nom, c = cancons.find(x => x.nom === nom), url = `/api/cancons/${encodeURIComponent(nom)}`;
+  if (e.target.matches("[data-activa]")) {
+    c.activa = e.target.checked;
+    await intenta(() => api(url, { method: "PATCH", json: { activa: c.activa } }), c.activa ? "Activada" : "Desactivada");
+    pintaCancons();
+  }
+  if (e.target.matches("[data-inici]")) {
+    c.inici = Math.max(0, +e.target.value || 0);
+    await intenta(() => api(url, { method: "PATCH", json: { inici: c.inici } }), "Desat");
+    pintaCancons();
+  }
+});
+$("#previsualitza").addEventListener("ended", () => { sonantPrev = null; pintaCancons(); });
+
+const zona = $("#zona-pujar");
+["dragenter","dragover"].forEach(ev => zona.addEventListener(ev, e => { e.preventDefault(); zona.classList.add("sobre"); }));
+["dragleave","drop"].forEach(ev => zona.addEventListener(ev, e => { e.preventDefault(); zona.classList.remove("sobre"); }));
+zona.addEventListener("drop", e => puja(e.dataTransfer.files));
+$("#fitxers").addEventListener("change", e => { puja(e.target.files); e.target.value = ""; });
+function puja(fitxers) {
+  if (!fitxers.length) return;
+  const fd = new FormData();
+  [...fitxers].forEach(f => fd.append("fitxers", f));
+  const xhr = new XMLHttpRequest(), bar = $("#progres");
+  bar.style.display = "block"; bar.firstElementChild.style.width = "0";
+  xhr.upload.onprogress = e => { if (e.lengthComputable) bar.firstElementChild.style.width = (e.loaded / e.total * 100) + "%"; };
+  xhr.onload = () => {
+    bar.style.display = "none";
+    if (xhr.status === 401) return mostraLogin();
+    try {
+      const d = JSON.parse(xhr.responseText);
+      if (xhr.status !== 200) throw new Error(d.error || "Error en pujar");
+      toast(`${d.desades.length} ${d.desades.length == 1 ? "cançó afegida" : "cançons afegides"}` + (d.rebutjades.length ? ` · ${d.rebutjades.length} no són d'àudio` : ""), !d.desades.length);
+    } catch (e) { toast(xhr.status === 413 ? "Fitxer massa gran" : e.message, true); }
+    carregaCancons();
+  };
+  xhr.onerror = () => { bar.style.display = "none"; toast("Error de connexió", true); };
+  xhr.open("POST", "/api/cancons"); xhr.send(fd);
+}
+
+// ---------------------------------------------------------------- FESTIUS
+async function carregaFestius() { config = await api("/api/config"); pintaFestius(); }
+function rangText(f) {
+  const a = new Date(f.inici + "T00:00"), b = new Date(f.fi + "T00:00");
+  const curt = d => `${d.getDate()} ${MESOS[d.getMonth()].slice(0, 3)}.${d.getFullYear() !== new Date().getFullYear() ? " " + d.getFullYear() : ""}`;
+  const n = Math.round((b - a) / 86400000) + 1;
+  return f.inici === f.fi ? `${DIES_LLARGS[(a.getDay() + 6) % 7]} ${curt(a)}` : `${curt(a)} → ${curt(b)} <span class="muted">(${n} dies)</span>`;
+}
+function pintaFestius() {
+  const a0 = araServidor(), avui = `${a0.getFullYear()}-${dos(a0.getMonth() + 1)}-${dos(a0.getDate())}`;
+  const fila = (f, i) => `<div class="festiu"><div class="d">${rangText(f)}<small>${esc(f.nom || "Festiu")}</small></div>
+    <button class="btn mini icona perill" data-i="${i}" aria-label="Esborra"><svg><use href="#i-paperera"/></svg></button></div>`;
+  const vinents = config.festius.map((f, i) => [f, i]).filter(([f]) => f.fi >= avui);
+  const passats = config.festius.map((f, i) => [f, i]).filter(([f]) => f.fi < avui);
+  $("#festius").innerHTML = vinents.length ? vinents.map(([f, i]) => fila(f, i)).join("") : `<div class="buit">No hi ha cap festiu programat.</div>`;
+  $("#festius-passats").innerHTML = passats.reverse().map(([f, i]) => fila(f, i)).join("");
+  $("#festius-passats-wrap").classList.toggle("amagat", !passats.length);
+}
+document.querySelectorAll("#festius, #festius-passats").forEach(el => el.addEventListener("click", async e => {
+  const b = e.target.closest("[data-i]"); if (!b) return;
+  const f = config.festius[b.dataset.i];
+  if (!confirm(`Esborrar «${f.nom || "festiu"}»?`)) return;
+  const festius = config.festius.filter((_, i) => i != b.dataset.i);
+  config = await intenta(() => api("/api/config", { method: "PATCH", json: { festius } }), "Festiu esborrat");
+  pintaFestius();
+}));
+$("#f-inici").addEventListener("change", e => { if (!$("#f-fi").value || $("#f-fi").value < e.target.value) $("#f-fi").min = e.target.value; });
+$("#form-festiu").addEventListener("submit", async e => {
+  e.preventDefault();
+  const nou = { inici: $("#f-inici").value, fi: $("#f-fi").value || $("#f-inici").value, nom: $("#f-nom").value };
+  config = await intenta(() => api("/api/config", { method: "PATCH", json: { festius: [...config.festius, nou] } }), "Festiu afegit");
+  e.target.reset(); pintaFestius();
+});
+
+// ---------------------------------------------------------------- HISTORIAL
+async function carregaHistorial() {
+  const { historial } = await api("/api/historial");
+  if (!historial.length) { $("#historial").innerHTML = `<div class="card buit">Encara no ha sonat res.</div>`; return; }
+  let html = "", dia = null, obert = false;
+  for (const h of historial) {
+    const d = new Date(h.t), clau = d.toDateString();
+    if (clau !== dia) {
+      if (obert) html += "</div>";
+      html += `<div class="grup-dia etiqueta">${dataLlarga(d)}</div><div class="card" style="padding:2px 16px">`;
+      dia = clau; obert = true;
+    }
+    html += `<div class="hist"><span class="t">${dos(d.getHours())}:${dos(d.getMinutes())}</span><span class="c">${esc(h.canco.replace(/\.[^.]+$/, ""))}</span><span class="m">${esc(h.motiu)} · ${durada(h.segons)}</span></div>`;
+  }
+  $("#historial").innerHTML = html + (obert ? "</div>" : "");
+}
+
+// ---------------------------------------------------------------- AJUSTOS
+async function carregaAjustos() {
+  config = await api("/api/config");
+  const a = config.ajustos;
+  $("#a-volum").value = a.volum; $("#a-volum-v").textContent = a.volum + "%";
+  $("#a-normalitza").checked = a.normalitza;
+  $("#a-retard").value = a.retard_inici; $("#a-fos").value = a.durada_fos; $("#a-norepetir").value = a.no_repetir;
+  if (estat) $("#info-sistema").innerHTML = `Adreça de la web: <span style="font-family:var(--mono)">http://${esc(estat.ip || "timbre.local")}</span> · també <span style="font-family:var(--mono)">http://timbre.local</span>`;
+}
+$("#a-volum").addEventListener("input", e => $("#a-volum-v").textContent = e.target.value + "%");
+$("#form-ajustos").addEventListener("submit", async e => {
+  e.preventDefault();
+  const ajustos = { volum: +$("#a-volum").value, normalitza: $("#a-normalitza").checked, retard_inici: +$("#a-retard").value, durada_fos: +$("#a-fos").value, no_repetir: +$("#a-norepetir").value };
+  config = await intenta(() => api("/api/config", { method: "PATCH", json: { ajustos } }), "Ajustos desats");
+});
+$("#form-pass").addEventListener("submit", async e => {
+  e.preventDefault();
+  await intenta(() => api("/api/contrasenya", { method: "POST", json: { actual: $("#p-actual").value, nova: $("#p-nova").value } }), "Contrasenya canviada");
+  e.target.reset();
+});
+$("#btn-sortir").addEventListener("click", async () => { await api("/api/logout", { method: "POST" }); location.reload(); });
+
+// ---------------------------------------------------------------- ENGEGA
+async function inicia() {
+  await refrescaEstat();
+  const h = location.hash.slice(1);
+  vesA(["inici","horari","cancons","festius","historial","ajustos"].includes(h) ? h : "inici");
+}
+(async () => {
+  const s = await (await fetch("/api/sessio")).json();
+  if (!s.ok) mostraLogin(); else inicia();
+})();
+</script>
+</body>
+</html>

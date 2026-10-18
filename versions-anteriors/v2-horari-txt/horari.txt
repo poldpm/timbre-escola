@@ -1,0 +1,22 @@
+# HORARI DEL TIMBRE MUSICAL
+# Aquest fitxer va a la carpeta de Drive "Timbre escola", amb les cançons.
+# Els canvis s'apliquen la nit següent (o en reiniciar la Raspberry).
+#
+# Format:   HORA   DURADA_EN_SEGONS   DIES
+#   - DIES és opcional (per defecte, de dilluns a divendres: dl-dv)
+#     Exemples: dl-dv   dl,dc,dv   dj
+#   - Les hores han de coincidir amb les del rellotge de la caixa blanca,
+#     que és qui engega l'amplificador.
+#   - La durada no pot ser més llarga que l'estona que el rellotge
+#     té l'amplificador engegat.
+#
+# ⚠️ HORES D'EXEMPLE: canvia-les per les reals del rellotge!
+
+09:00   60   dl-dv
+11:00   60   dl-dv
+11:30   60   dl-dv
+15:00   60   dl-dv
+
+# FESTIUS (dies que no ha de sonar). Format AAAA-MM-DD o un rang amb ..
+# festiu 2026-12-08
+# festiu 2026-12-22..2027-01-07

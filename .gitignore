@@ -1,0 +1,14 @@
+# Dades de funcionament (es creen a la Raspberry; no van al repositori)
+config.json
+config.tmp
+estat.json
+historial.jsonl
+historial.log
+.clau_sessio
+reserva.mp3
+musica/
+
+# Proves locals
+.demo/
+__pycache__/
+*.pyc
