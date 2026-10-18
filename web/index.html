@@ -127,6 +127,7 @@ section.actiu{display:block}
 .sel-inici{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);margin:-2px 0 6px}
 .sel-inici b{color:var(--ink);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chip.passat,.chip.silenci{background:var(--line);color:var(--muted)}
+.chip.error{background:var(--danger-soft);color:var(--danger)}
 .dia li.fet .h,.dia li.fet .n{opacity:.6}
 
 /* interruptor */
@@ -195,6 +196,7 @@ label.camp>input,label.camp>select{margin-top:4px;color:var(--ink);font-weight:4
 .hist .t{font-family:var(--mono);font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 .hist .c{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hist .m{grid-column:2;color:var(--muted);font-size:13px}
+.hist .m.error{color:var(--danger)}
 .grup-dia{margin:16px 0 6px;font-size:13px}
 
 /* ajustos */
@@ -519,6 +521,8 @@ function pintaInici() {
   let av = "";
   if (e.demo) av += `<div class="avis info"><span>ℹ</span><span>Mode de proves: no surt so.</span></div>`;
   if (e.sincronitzada === false) av += `<div class="avis danger"><span>⚠</span><span><b>L'hora no està sincronitzada.</b> Comprova que la Raspberry té internet: sense, podria sonar a deshora.</span></div>`;
+  const fallat = e.avui.find(t => t.estat === "error");
+  if (fallat) av += `<div class="avis danger"><span>⚠</span><span><b>El toc de les ${fallat.hora} no ha sonat:</b> ${esc(fallat.error)}. Mira-ho a l'Historial.</span></div>`;
   if (!e.n_actives) av += `<div class="avis warn"><span>⚠</span><span><b>No hi ha cap cançó activa.</b> ${e.reserva ? "Sonarà la cançó de reserva." : "No sonarà res!"} <a href="#cancons" onclick="vesA('cancons');return false" style="color:inherit;font-weight:700">Afegeix-ne</a></span></div>`;
   if (!e.actiu) av += `<div class="avis danger"><span>⏸</span><span><b>El timbre està aturat.</b> No sonarà fins que el tornis a activar.</span></div>`;
   else if (e.silenci_avui) av += `<div class="avis warn"><span>🔇</span><span><b>Avui no sona:</b> ${esc(e.silenci_avui)}.</span></div>`;
@@ -527,8 +531,8 @@ function pintaInici() {
   const avui = araServidor();
   $("#avui-data").textContent = dataLlarga(avui);
   $("#avui").innerHTML = e.avui.length ? e.avui.map(t => {
-    const txt = { sonat: "Ha sonat", pendent: "Pendent", ara: "Ara", passat: "No ha sonat", silenci: "Silenci" }[t.estat];
-    return `<li class="${["sonat","passat","silenci"].includes(t.estat) ? "fet" : ""}">
+    const txt = { sonat: "Ha sonat", pendent: "Pendent", ara: "Ara", passat: "No ha sonat", silenci: "Silenci", error: "Ha fallat" }[t.estat];
+    return `<li class="${["sonat","passat","silenci","error"].includes(t.estat) ? "fet" : ""}">
       <span class="h">${t.hora}</span>
       <span class="n">${esc(t.nom)}<small>${t.canco ? "♪ " + esc(t.canco.replace(/\.[^.]+$/, "")) : durada(t.durada)}</small></span>
       <span class="chip ${t.estat}">${txt}</span></li>`;
@@ -824,7 +828,7 @@ async function carregaHistorial() {
       html += `<div class="grup-dia etiqueta">${dataLlarga(d)}</div><div class="card" style="padding:2px 16px">`;
       dia = clau; obert = true;
     }
-    html += `<div class="hist"><span class="t">${dos(d.getHours())}:${dos(d.getMinutes())}</span><span class="c">${esc(h.canco.replace(/\.[^.]+$/, ""))}</span><span class="m">${esc(h.motiu)} · ${durada(h.segons)}</span></div>`;
+    html += `<div class="hist"><span class="t">${dos(d.getHours())}:${dos(d.getMinutes())}</span><span class="c">${esc(h.canco.replace(/\.[^.]+$/, ""))}</span>${h.error ? `<span class="m error">${esc(h.motiu)} · No ha sonat: ${esc(h.error)}</span>` : `<span class="m">${esc(h.motiu)} · ${durada(h.segons)}</span>`}</div>`;
   }
   $("#historial").innerHTML = html + (obert ? "</div>" : "");
 }

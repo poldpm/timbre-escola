@@ -35,25 +35,30 @@ Per a cada toc, la **durada** és el temps entre l'ON i l'OFF menys uns 5 segons
 ## 4. Instal·lar
 
 1. Posa la targeta a la Raspberry i endolla-la. Espera 2 minuts.
-2. Des d'un ordinador **de la mateixa wifi**, obre un terminal (a Windows: PowerShell), situa't on has descomprimit el zip i copia la carpeta:
-   ```
-   scp -r timbre usuari@timbre.local:~/instalacio
-   ```
-3. Connecta't i instal·la:
+2. Des d'un ordinador **de la mateixa wifi**, obre un terminal (a Windows: PowerShell) i connecta't a la Raspberry:
    ```
    ssh usuari@timbre.local
-   cd ~/instalacio
+   ```
+   (`usuari` és el que vas posar a l'Imager. El primer cop et preguntarà si confies en l'equip: respon `yes`.)
+3. Baixa el programa de GitHub i instal·la'l:
+   ```
+   sudo apt install -y git
+   git clone https://github.com/poldpm/timbre-escola.git
+   cd timbre-escola
    bash installa.sh
    ```
 4. En acabar et mostrarà l'adreça de la web.
+
+> Si el repositori de GitHub és **privat**, el `git clone` et demanarà usuari i contrasenya. Com a contrasenya no serveix la de GitHub: cal un *token* (github.com → Settings → Developer settings → Personal access tokens → Fine-grained, amb permís només de lectura d'aquest repositori).
 
 ## 5. Primer cop a la web
 
 1. Des del mòbil o l'ordinador, connectat a la **mateixa wifi**, obre **http://timbre.local**. Si no carrega, fes servir l'adreça amb números que ha mostrat l'instal·lador (per exemple `http://192.168.1.50`).
 2. Tria una **contrasenya**. Només la necessitaran les persones que hagin de gestionar el timbre.
-3. **Horari:** posa-hi les hores i durades reals del pas 2 i desa.
-4. **Cançons:** puja-les. Des de l'ordinador pots arrossegar-ne moltes de cop.
-5. **Festius:** afegeix-hi les vacances i els dies festius del curs.
+3. Ves a **Inici → Toca una cançó ara** (amb l'amplificador apagat, només per veure que no surt cap error). Si surt "No ha sonat: No s'ha pogut obrir la sortida d'àudio", mira l'apartat [Si surt «Ha fallat»](#si-surt-ha-fallat).
+4. **Horari:** posa-hi les hores i durades reals del pas 2 i desa.
+5. **Cançons:** puja-les. Des de l'ordinador pots arrossegar-ne moltes de cop.
+6. **Festius:** afegeix-hi les vacances i els dies festius del curs.
 
 > Consell: guarda la web a la pantalla d'inici del mòbil (menú del navegador → "Afegeix a la pantalla d'inici"). Així la tindràs com una app.
 
@@ -89,6 +94,28 @@ Per a cada toc, la **durada** és el temps entre l'ON i l'OFF menys uns 5 segons
 ## Canvi d'hora (estiu/hivern)
 
 La Raspberry el fa sola. El rellotge s'ha de canviar a mà, com diu el protocol de la paret, si no ho fa automàticament.
+
+## Actualitzar el programa
+
+Quan hi hagi canvis nous a GitHub, connecta't per SSH i executa:
+```
+cd ~/timbre-escola
+git pull
+bash installa.sh
+```
+L'horari, les cançons, l'historial i la contrasenya no es toquen: són a `~/timbre`, no a la carpeta del programa.
+
+## Si surt «Ha fallat»
+
+Quan la Raspberry intenta tocar i no pot, a la web surt un avís vermell a **Inici**, el toc es marca com a **Ha fallat** i l'**Historial** n'explica el motiu.
+
+- **"No s'ha pogut obrir la sortida d'àudio"**: el nom de la sortida d'àudio no és el que toca. Per SSH, mira com es diu amb `aplay -l` (busca la línia del jack, normalment `Headphones`). Si no és `Headphones`, escriu `sudo systemctl edit timbre` i afegeix:
+  ```
+  [Service]
+  Environment=TIMBRE_AUDIO=alsa/plughw:CARD=NomQueSurt,DEV=0
+  ```
+  Desa, i fes `sudo systemctl restart timbre`.
+- **"El fitxer no es pot reproduir"**: aquella cançó està malmesa. Esborra-la i torna-la a pujar.
 
 ## Si he oblidat la contrasenya
 

@@ -38,6 +38,7 @@ BASE = Path(os.environ.get("TIMBRE_DIR", CODI))
 MUSICA = BASE / "musica"
 WEB = CODI / "web"
 CONFIG = BASE / "config.json"
+CONFIG_BAK = BASE / "config.bak"      # copia identica, per si config.json es fa malbe
 ESTAT = BASE / "estat.json"
 HISTORIAL = BASE / "historial.jsonl"
 RESERVA = BASE / "reserva.mp3"
@@ -47,6 +48,8 @@ DEMO = os.environ.get("TIMBRE_DEMO") == "1"          # proves sense so
 SORTIDA_AUDIO = os.environ.get("TIMBRE_AUDIO", "alsa/plughw:CARD=Headphones,DEV=0")
 EXTENSIONS = {".mp3", ".m4a", ".ogg", ".wav", ".flac", ".opus", ".aac"}
 SOCKET_MPV = "/tmp/timbre-mpv.sock"
+MPV_LOG = BASE / "mpv.log"            # errors de l'ultim cop que ha sonat
+COMPROVA_INICI = 1.5  # s: si mpv s'atura abans d'aixo, no ha sonat
 MARGE_RETARD = 30   # s: si la Raspberry arrenca tard, encara toca si fa menys d'aixo
 
 CONFIG_PER_DEFECTE = {
@@ -75,26 +78,67 @@ LOCK = threading.RLock()
 CFG = {}
 
 
+def escriu_atomic(cami, text):
+    """Escriu el fitxer sencer o gens: si marxa la llum a mig desar, queda l'anterior."""
+    tmp = cami.with_name(cami.name + ".tmp")
+    with tmp.open("w", encoding="utf-8") as f:
+        f.write(text)
+        f.flush()
+        os.fsync(f.fileno())
+    tmp.replace(cami)
+    try:
+        fd = os.open(cami.parent, os.O_RDONLY)
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+    except OSError:
+        pass
+
+
+def llegeix_config_desada():
+    """Llegeix config.json o, si falta o esta malmes, la copia config.bak.
+    Un fitxer malmes no s'esborra mai: es reanomena per poder-lo recuperar a ma."""
+    for cami in (CONFIG, CONFIG_BAK):
+        try:
+            dades = json.loads(cami.read_text(encoding="utf-8"))
+            if not isinstance(dades, dict):
+                raise ValueError("no es un objecte JSON")
+        except FileNotFoundError:
+            continue
+        except Exception as e:
+            nom = f"config.malmes-{datetime.now():%Y%m%d-%H%M%S}"
+            apartat, i = cami.with_name(nom + cami.suffix), 2
+            while apartat.exists():
+                apartat, i = cami.with_name(f"{nom}-{i}{cami.suffix}"), i + 1
+            cami.replace(apartat)
+            log.error("%s malmes (%s): l'aparto com a %s", cami.name, e, apartat.name)
+            continue
+        if cami == CONFIG_BAK:
+            log.warning("config.json no es pot llegir: recupero la copia config.bak")
+        return dades
+    return None
+
+
 def carrega_config():
     global CFG
     dades = json.loads(json.dumps(CONFIG_PER_DEFECTE))
-    try:
-        dades.update(json.loads(CONFIG.read_text(encoding="utf-8")))
+    desada = llegeix_config_desada()
+    if desada is not None:
+        dades.update(desada)
         dades["ajustos"] = {**CONFIG_PER_DEFECTE["ajustos"], **dades.get("ajustos", {})}
         dades["seleccio"] = {**CONFIG_PER_DEFECTE["seleccio"], **dades.get("seleccio", {})}
-    except FileNotFoundError:
-        pass
-    except Exception:
-        log.exception("config.json malmes: faig servir els valors per defecte")
+    elif list(BASE.glob("config.malmes-*")):
+        log.error("No hi ha cap configuracio bona: faig servir els valors per defecte")
     CFG = dades
     desa_config()
 
 
 def desa_config():
     with LOCK:
-        tmp = CONFIG.with_suffix(".tmp")
-        tmp.write_text(json.dumps(CFG, ensure_ascii=False, indent=1), encoding="utf-8")
-        tmp.replace(CONFIG)
+        text = json.dumps(CFG, ensure_ascii=False, indent=1)
+        escriu_atomic(CONFIG, text)
+        escriu_atomic(CONFIG_BAK, text)
 
 
 def cfg():
@@ -261,9 +305,9 @@ def llegeix_estat():
 
 def desa_estat(estat):
     try:
-        ESTAT.write_text(json.dumps(estat, ensure_ascii=False), encoding="utf-8")
+        escriu_atomic(ESTAT, json.dumps(estat, ensure_ascii=False))
     except Exception:
-        pass
+        log.exception("No puc desar estat.json")
 
 
 def actives(c):
@@ -337,14 +381,20 @@ def tria_canco(c):
 
 # ----------------------------------------------------------------- HISTORIAL
 SONATS = {}   # moment del toc (iso) -> canco
+FALLATS = {}  # moment del toc (iso) -> {"canco", "error"}: ho ha intentat i no ha sonat
 
 
-def registra(canco, motiu, segons, toc=None):
+def registra(canco, motiu, segons, toc=None, error=None):
     entrada = {"t": datetime.now().isoformat(timespec="seconds"), "canco": canco,
                "motiu": motiu, "segons": round(segons)}
+    if error:
+        entrada["error"] = error
     if toc:
         entrada["toc"] = toc.isoformat()
-        SONATS[entrada["toc"]] = canco
+        if error:
+            FALLATS[entrada["toc"]] = {"canco": canco, "error": error}
+        else:
+            SONATS[entrada["toc"]] = canco
     try:
         with HISTORIAL.open("a", encoding="utf-8") as f:
             f.write(json.dumps(entrada, ensure_ascii=False) + "\n")
@@ -375,7 +425,10 @@ def prepara_historial():
         pass
     for e in llegeix_historial(300):
         if "toc" in e:
-            SONATS[e["toc"]] = e["canco"]
+            if e.get("error"):
+                FALLATS[e["toc"]] = {"canco": e["canco"], "error": e["error"]}
+            else:
+                SONATS[e["toc"]] = e["canco"]
 
 
 # ----------------------------------------------------------------- REPRODUCTOR
@@ -387,6 +440,22 @@ def ordre_mpv(ordre):
             s.sendall((json.dumps({"command": ordre}) + "\n").encode())
     except Exception:
         pass
+
+
+def explica_error_mpv(codi):
+    """Tradueix el que ha escrit mpv a un missatge entenedor per a la web."""
+    try:
+        linies = [l.strip() for l in MPV_LOG.read_text(encoding="utf-8", errors="replace").splitlines() if l.strip()]
+    except Exception:
+        linies = []
+    text = "\n".join(linies).lower()
+    if "audio device" in text or "audio driver" in text:
+        return f"No s'ha pogut obrir la sortida d'àudio ({SORTIDA_AUDIO})"
+    if "file format" in text or "no such file" in text:
+        return "El fitxer no es pot reproduir (potser està malmès)"
+    if codi == 0:
+        return "La cançó s'ha acabat de seguida (mira on comença)"
+    return (linies[-1][:200] if linies else f"El reproductor ha fallat (codi {codi})")
 
 
 class Reproductor:
@@ -403,7 +472,7 @@ class Reproductor:
         if DEMO:
             args = ["sleep", str(int(segons) + 2)]
         else:
-            args = ["mpv", "--no-video", "--really-quiet", "--no-terminal",
+            args = ["mpv", "--no-video", "--msg-level=all=error", "--input-terminal=no", "--term-osd=no",
                     f"--audio-device={SORTIDA_AUDIO}", f"--volume={aj['volum']}",
                     f"--input-ipc-server={SOCKET_MPV}"]
             if inici:
@@ -411,17 +480,40 @@ class Reproductor:
             if aj["normalitza"]:
                 args.append("--af=lavfi=[loudnorm=I=-16:TP=-1.5:LRA=11]")
             args.append(str(canco))
+        error = None
         with self.lock:
             self._mata()
             self.gen += 1
             g = self.gen
-            self.proc = subprocess.Popen(args)
+            try:
+                with MPV_LOG.open("w", encoding="utf-8") as sortida:
+                    self.proc = subprocess.Popen(args, stdin=subprocess.DEVNULL,
+                                                 stdout=subprocess.DEVNULL, stderr=sortida)
+            except OSError as e:
+                self.proc = None
+                error = f"No s'ha pogut engegar el reproductor ({e.strerror or e})"
+            proc = self.proc
             ara = time.time()
-            self.info = {"canco": canco.name, "motiu": motiu, "inici": ara, "fi": ara + segons}
+            self.info = proc and {"canco": canco.name, "motiu": motiu, "inici": ara, "fi": ara + segons}
+        if proc:
+            # Si mpv no pot obrir l'audio o el fitxer, s'atura de seguida
+            try:
+                error = explica_error_mpv(proc.wait(timeout=COMPROVA_INICI))
+            except subprocess.TimeoutExpired:
+                pass
+        if error:
+            with self.lock:
+                if g == self.gen:
+                    self.proc = None
+                    self.info = None
+            log.error("NO HA SONAT %s (%s): %s", canco.name, motiu, error)
+            registra(canco.name, motiu, 0, toc, error=error)
+            return error
         log.info("Toca: %s (%s, %d s)", canco.name, motiu, segons)
         registra(canco.name, motiu, segons, toc)
         threading.Thread(target=self._vigila, args=(g, segons, aj["durada_fos"], aj["volum"]),
                          daemon=True).start()
+        return None
 
     def _vigila(self, g, segons, fos, volum):
         limit = time.monotonic() + max(segons - fos, 1)
@@ -595,10 +687,15 @@ def api_estat():
     llista = []
     for moment, t in tocs_del_dia(avui, c):
         clau = moment.isoformat()
+        canco = SONATS.get(clau)
+        error = None
         if silenci:
             e = "silenci"
         elif clau in SONATS:
             e = "sonat"
+        elif clau in FALLATS:
+            e = "error"
+            canco, error = FALLATS[clau]["canco"], FALLATS[clau]["error"]
         elif moment + timedelta(seconds=t["durada"]) < ara:
             e = "passat"
         elif moment <= ara:
@@ -606,7 +703,7 @@ def api_estat():
         else:
             e = "pendent"
         llista.append({"hora": t["hora"], "nom": t["nom"], "durada": t["durada"],
-                       "estat": e, "canco": SONATS.get(clau)})
+                       "estat": e, "canco": canco, "error": error})
     p = proper_toc(ara, c)
     son = REPRODUCTOR.estat()
     totes = cancons()
@@ -773,7 +870,9 @@ def api_toca():
     canco = cami_canco(d["canco"]) if d.get("canco") else tria_canco(c)
     if not canco:
         raise Invalid("No hi ha cap cançó per tocar")
-    REPRODUCTOR.toca(canco, segons, "Manual (web)")
+    error = REPRODUCTOR.toca(canco, segons, "Manual (web)")
+    if error:
+        raise Invalid(f"No ha sonat: {error}")
     return jsonify(ok=True, canco=canco.name)
 
 
@@ -833,7 +932,9 @@ def main():
     if "--prova" in sys.argv:
         canco = tria_canco(cfg())
         if canco:
-            REPRODUCTOR.toca(canco, 20, "Prova")
+            error = REPRODUCTOR.toca(canco, 20, "Prova")
+            if error:
+                sys.exit(f"NO HA SONAT: {error}")
             time.sleep(21)
         return
 
