@@ -221,8 +221,9 @@ En Pol **ja té la microSD**. La Raspberry Pi 3 l'hi deixa algú (és gratis). E
 2. **Comprovar que és el rellotge qui treu el JEDIA de standby** (mirar el LED en un toc real).
 3. **Tipus de wifi de la sala:** si és WPA2-Enterprise o té portal captiu, cal cable de xarxa. Sense internet no hi ha hora fiable, perquè la Pi 3 **no té RTC**.
 4. **Connector de l'entrada del JEDIA** on va el Fonestar (RCA o jack) per saber quin cable cal.
-5. Primera instal·lació real seguint `GUIA.md` i un primer toc amb en Pol al costat.
-6. Copiar la cançó actual del pen com a `reserva.mp3`.
+5. **Demanar a informàtica una IP fixa (reserva DHCP)** per a la Raspberry, i connectar-la a la mateixa wifi que el personal. Es donarà l'enllaç `http://IP` a la directora i a qui calgui.
+6. Primera instal·lació real seguint `GUIA.md` i un primer toc amb en Pol al costat.
+7. Copiar la cançó actual del pen com a `reserva.mp3`.
 
 ## 8. Riscos i coses a verificar a la Raspberry real
 
@@ -239,7 +240,7 @@ En Pol **ja té la microSD**. La Raspberry Pi 3 l'hi deixa algú (és gratis). E
 
 ## 9. Idees per al futur (n'hem parlat o surten de forma natural)
 
-- **Accés des de fora de l'escola:** Tailscale (gratuït) a la Raspberry.
+- ~~Accés des de fora de l'escola~~ **DESCARTAT per en Pol (18/10):** només s'hi entra des de la wifi de l'escola. Se li van explicar Tailscale (cal instal·lar l'app a cada usuari) i Tailscale Funnel (enllaç públic, però caldria reforçar el login: límit d'intents, contrasenya llarga, cookies Secure). Ho va trobar massa complicat per a la directora. No ho tornis a proposar si ell no ho demana.
 - **Calendari de cançons temàtiques:** una cançó o llista diferent per dates (Nadal, Sant Jordi, final de curs).
 - **Llistes / categories** de cançons.
 - **Avisos per megafonia:** text a veu, o un fitxer pujat per tocar a una hora concreta un sol cop.
