@@ -4,13 +4,28 @@
 
 El **rellotge Theben no es toca**: continua engegant l'amplificador a les seves hores. Per això, les hores de la web **han de coincidir amb les del rellotge**.
 
+**No cal pantalla ni teclat.** La Raspberry funciona "a cegues" i la controles des del portàtil: en una finestra hi escrius ordres i ella les executa (això és el que aquí anomenem **SSH**).
+
+**Es prepara a casa i es porta a l'escola.** A casa la instal·les, hi poses les cançons i comproves que sona amb uns auriculars (passos 3 a 5). A l'escola només l'endolles, la connectes a l'amplificador i fas la prova final (passos 6 a 8).
+
 ---
 
 ## 1. Material
 
-- Raspberry Pi 3 + carregador oficial (5 V / 2,5 A, micro-USB)
-- microSD (la que ja tens)
-- Cable d'àudio: jack 3,5 mm a la Raspberry → el connector del cable que ara entra al Fonestar (mira si és RCA o jack)
+**Per preparar-la a casa:**
+- **Raspberry Pi 3.**
+- **Carregador micro-USB de 5 V i 2,5 A.** Mira si te'l donen amb la Raspberry. Un carregador de mòbil vell sovint no dona prou corrent i la Raspberry fa coses estranyes. L'oficial costa uns 10 €.
+- **La microSD.**
+- **Un lector de targetes per al portàtil.** Si el portàtil té ranura SD, fes servir l'adaptador de microSD a SD que sol venir amb la targeta. Si no, un lector USB costa uns 5 €.
+- **El portàtil** (Windows). Hi instal·laràs **Raspberry Pi Imager**, que és gratuït. L'ordre `ssh` ja ve amb Windows.
+- **Un cable de xarxa** per connectar la Raspberry al router de casa.
+- **Uns auriculars o un altaveu amb jack de 3,5 mm**, per a la prova de so.
+
+**Per a l'escola:**
+- **Cable d'àudio:** jack de 3,5 mm a la banda de la Raspberry → el connector que demani l'entrada del JEDIA on ara va el Fonestar (mira si és RCA o jack).
+- **Opcional: una caixeta per a la Raspberry** (5–8 €), que la protegeix de la pols i dels cops.
+
+**Pla B** (només si no t'hi pots connectar des del portàtil): una pantalla o tele amb **HDMI** i un teclat USB.
 
 ## 2. Apuntar l'horari del rellotge
 
@@ -25,7 +40,7 @@ Per a cada toc, la **durada** és el temps entre l'ON i l'OFF menys uns 5 segons
 3. A "Edita la configuració":
    - Nom de l'equip: `timbre`
    - Usuari i contrasenya: els que vulguis (apunta-te'ls)
-   - Wifi: la de la sala de l'aparell. País: ES
+   - Wifi: **la de l'escola** (la de la sala de l'aparell), encara que ho preparis a casa. A casa la connectaràs amb cable. País: ES
    - Zona horària: Europe/Madrid
    - Pestanya Serveis: **activa SSH** amb contrasenya
 4. Grava la targeta.
@@ -34,12 +49,15 @@ Per a cada toc, la **durada** és el temps entre l'ON i l'OFF menys uns 5 segons
 
 ## 4. Instal·lar
 
-1. Posa la targeta a la Raspberry i endolla-la. Espera 2 minuts.
-2. Des d'un ordinador **de la mateixa wifi**, obre un terminal (a Windows: PowerShell) i connecta't a la Raspberry:
+1. Posa la targeta a la Raspberry. Connecta-la al **router de casa amb el cable de xarxa** i, al final, endolla el carregador. Espera 2 minuts.
+2. Al portàtil, connectat a la xarxa de casa, obre **PowerShell** (busca'l al menú Inici) i connecta't a la Raspberry:
    ```
    ssh usuari@timbre.local
    ```
-   (`usuari` és el que vas posar a l'Imager. El primer cop et preguntarà si confies en l'equip: respon `yes`.)
+   - `usuari` és el que vas posar a l'Imager.
+   - El primer cop et preguntarà si confies en l'equip: escriu `yes` i prem Retorn.
+   - Després et demanarà la contrasenya de l'usuari. **Mentre l'escrius no es veu res a la pantalla**: és normal, escriu-la i prem Retorn.
+   - Si diu que no troba `timbre.local`, espera un parell de minuts més i torna-ho a provar. Si continua, entra a la pàgina del router de casa, busca l'equip "timbre" a la llista d'aparells connectats i fes servir la seva adreça: `ssh usuari@192.168.1.XX`.
 3. Baixa el programa de GitHub i instal·la'l:
    ```
    sudo apt install -y git
@@ -54,16 +72,25 @@ Per a cada toc, la **durada** és el temps entre l'ON i l'OFF menys uns 5 segons
 
 ## 5. Primer cop a la web
 
-1. Des del mòbil o l'ordinador, connectat a la **mateixa wifi**, obre **http://timbre.local**. Si no carrega, fes servir l'adreça amb números que ha mostrat l'instal·lador (per exemple `http://192.168.1.50`).
+1. Des del portàtil o del mòbil, connectat a la **mateixa xarxa** que la Raspberry (a casa, la del router), obre **http://timbre.local**. Si no carrega, fes servir l'adreça amb números que ha mostrat l'instal·lador (per exemple `http://192.168.1.50`).
 2. Entra amb el **codi de 4 xifres** que has triat a la instal·lació. Si t'equivoques 5 vegades seguides, la web et farà esperar uns minuts abans de tornar-ho a provar.
-3. Ves a **Inici → Toca una cançó ara** (amb l'amplificador apagat, només per veure que no surt cap error). Si surt "No ha sonat: No s'ha pogut obrir la sortida d'àudio", mira l'apartat [Si surt «Ha fallat»](#si-surt-ha-fallat).
-4. **Horari:** posa-hi les hores i durades reals del pas 2 i desa.
-5. **Cançons:** puja-les. Des de l'ordinador pots arrossegar-ne moltes de cop.
+3. **Cançons:** puja-les. Des de l'ordinador pots arrossegar-ne moltes de cop.
+4. **Prova de so amb auriculars** (la prova més important): connecta uns auriculars o un altaveu al jack de la Raspberry i ves a **Inici → Toca una cançó ara**. Si sona, a l'escola també sonarà. Si surt "No ha sonat: No s'ha pogut obrir la sortida d'àudio", mira l'apartat [Si surt «Ha fallat»](#si-surt-ha-fallat).
+5. **Horari:** posa-hi les hores i durades reals del pas 2 i desa.
 6. **Festius:** afegeix-hi les vacances i els dies festius del curs.
+
+Per apagar-la abans de portar-la a l'escola, per SSH: `sudo poweroff`. Espera que s'apagui la llum verda i desendolla-la.
 
 > Consell: guarda la web a la pantalla d'inici del mòbil (menú del navegador → "Afegeix a la pantalla d'inici"). Així la tindràs com una app.
 
-## 6. Provar el so (fora d'horari de classe!)
+## 6. Portar-la a l'escola
+
+1. Endolla la Raspberry a la **regleta blanca**, que té corrent sempre, i espera 2 minuts. Es connectarà sola a la wifi de l'escola.
+2. Amb el mòbil connectat a la **mateixa wifi**, obre **http://timbre.local**.
+3. Si no carrega: **a l'escola l'adreça amb números és diferent de la de casa**. Demana-la a informàtica (busquen l'equip "timbre" al router) i, de pas, demana'ls que li **reservin aquesta IP fixa**. Aquesta serà l'adreça que donaràs a la directora i a qui calgui.
+4. Si no es connecta de cap manera, probablement la wifi de l'escola és d'usuari i contrasenya personal o té pàgina d'accés: caldrà un cable de xarxa (vegeu el pas 3).
+
+## 7. Provar el so amb l'amplificador (fora d'horari de classe!)
 
 1. Connecta el jack de la Raspberry al cable que anava al Fonestar.
 2. Engega l'amplificador amb **POWER**, amb el **MASTER baix**.
@@ -71,9 +98,9 @@ Per a cada toc, la **durada** és el temps entre l'ON i l'OFF menys uns 5 segons
 4. Ajusta el volum amb la rodella de l'entrada al JEDIA, no amb la Raspberry.
 5. Torna a deixar el MASTER i l'amplificador com estaven.
 
-## 7. Instal·lació definitiva
+## 8. Instal·lació definitiva
 
-1. Endolla la Raspberry a la **regleta blanca**, que té corrent sempre.
+1. Deixa la Raspberry endollada a la **regleta blanca**.
 2. Deixa el cable d'àudio connectat a la Raspberry. El Fonestar es pot quedar on és, desconnectat, com a recanvi.
 3. **No toquis el rellotge.**
 4. Al primer toc real, sigues-hi a prop per comprovar que tot quadra.
