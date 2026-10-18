@@ -252,10 +252,10 @@ input[type=range]{width:140px;accent-color:var(--accent)}
   <div class="card">
     <div class="logo"><svg><use href="#i-check"/></svg></div>
     <h2 id="login-titol">Timbre de l'escola</h2>
-    <p class="muted" id="login-text" style="margin:0">Entra amb la contrasenya per gestionar la megafonia.</p>
+    <p class="muted" id="login-text" style="margin:0">Entra amb el codi per gestionar la megafonia.</p>
     <form id="login-form">
-      <input type="password" id="login-pass" placeholder="Contrasenya" autocomplete="current-password" required>
-      <input type="password" id="login-pass2" placeholder="Repeteix la contrasenya" autocomplete="new-password" class="amagat">
+      <input type="password" id="login-pass" placeholder="Codi de 4 xifres" autocomplete="current-password" required inputmode="numeric" pattern="[0-9]{4}" maxlength="4" title="Codi de 4 xifres">
+      <input type="password" id="login-pass2" placeholder="Repeteix el codi" autocomplete="new-password" class="amagat" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" title="Codi de 4 xifres">
       <div class="error" id="login-error"></div>
       <button class="btn prim" type="submit" id="login-btn">Entra</button>
     </form>
@@ -376,8 +376,8 @@ input[type=range]{width:140px;accent-color:var(--accent)}
     <form class="card" id="form-pass">
       <h3>Contrasenya de la web</h3>
       <div style="display:grid;gap:10px">
-        <input type="password" id="p-actual" placeholder="Contrasenya actual" autocomplete="current-password" required>
-        <input type="password" id="p-nova" placeholder="Contrasenya nova" autocomplete="new-password" required minlength="4">
+        <input type="password" id="p-actual" placeholder="Codi actual" autocomplete="current-password" required inputmode="numeric" pattern="[0-9]{4}" maxlength="4" title="Codi de 4 xifres">
+        <input type="password" id="p-nova" placeholder="Codi nou de 4 xifres" autocomplete="new-password" required inputmode="numeric" pattern="[0-9]{4}" maxlength="4" title="Codi de 4 xifres">
       </div>
       <div class="fila" style="margin-top:12px"><span class="espai"></span><button class="btn" type="submit">Canvia-la</button></div>
     </form>
@@ -448,8 +448,8 @@ async function mostraLogin() {
   $("#login-pass2").classList.toggle("amagat", configurada);
   $("#login-pass2").required = !configurada;
   $("#login-titol").textContent = configurada ? "Timbre de l'escola" : "Benvingut/da!";
-  $("#login-text").textContent = configurada ? "Entra amb la contrasenya per gestionar la megafonia."
-    : "Primer de tot, tria una contrasenya per protegir la web.";
+  $("#login-text").textContent = configurada ? "Entra amb el codi per gestionar la megafonia."
+    : "Primer de tot, tria un codi de 4 xifres per protegir la web.";
   $("#login-btn").textContent = configurada ? "Entra" : "Desa i entra";
   $("#login").classList.add("visible");
   $("#login-pass").focus();
@@ -774,7 +774,7 @@ function puja(fitxers) {
     try {
       const d = JSON.parse(xhr.responseText);
       if (xhr.status !== 200) throw new Error(d.error || "Error en pujar");
-      toast(`${d.desades.length} ${d.desades.length == 1 ? "cançó afegida" : "cançons afegides"}` + (d.rebutjades.length ? ` · ${d.rebutjades.length} no són d'àudio` : ""), !d.desades.length);
+      toast(`${d.desades.length} ${d.desades.length == 1 ? "cançó afegida" : "cançons afegides"}` + (d.rebutjades.length ? ` · ${d.rebutjades.length} no són d'àudio` : "") + (d.sense_espai?.length ? ` · ${d.sense_espai.length} no hi caben: la targeta és plena` : ""), !d.desades.length);
     } catch (e) { toast(xhr.status === 413 ? "Fitxer massa gran" : e.message, true); }
     carregaCancons();
   };

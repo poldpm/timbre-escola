@@ -39,6 +39,15 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 sudo systemctl daemon-reload
+
+# La contrasenya es tria aquí, abans d'engegar la web: així ningú no s'hi pot avançar
+if ! python3 -c "import json,sys; sys.exit(0 if json.load(open('$DESTI/config.json')).get('contrasenya') else 1)" 2>/dev/null; then
+  echo
+  echo "== Tria la contrasenya de la web =="
+  echo "La necessitaran totes les persones que hagin de gestionar el timbre."
+  python3 "$DESTI/timbre.py" --contrasenya
+fi
+
 sudo systemctl enable timbre
 sudo systemctl restart timbre
 
@@ -46,4 +55,4 @@ IP=$(hostname -I | awk '{print $1}')
 echo
 echo "FET! Obre la web des d'un mòbil o ordinador de la mateixa wifi:"
 echo "    http://$(hostname).local    o    http://$IP"
-echo "El primer cop et demanarà que triïs una contrasenya."
+echo "Entra-hi amb la contrasenya que acabes de triar."

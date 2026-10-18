@@ -9,6 +9,7 @@
 - **Usuari:** en Pol, mestre de primària a **Vedruna Escorial Vic** (Vic, Catalunya) i responsable de comunicació de l'escola. Té bon nivell tècnic (fa apps amb Claude, Google Sheets + Apps Script, GitHub Pages), però **no és electricista**: tot el que sigui 230 V ho ha de fer l'instal·lador.
 - **Idioma:** parla-li en **català**. Totes les interfícies, missatges i textos d'usuari, en català.
 - **Git (norma fixa):** a l'inici de cada sessió fes `git pull`. En acabar cada canvi complet, fes `git commit` + `git push` **sense que t'ho demani**.
+  - **Fusionar a `main` també ho fas tu (autoritzat per en Pol el 18/10):** si treballes en una branca, en acabar cada canvi provat obre el pull request contra `main` i **fusiona'l tu mateix**, sense esperar-lo. La Raspberry s'actualitza des de `main`. Només ho deixes obert si en Pol demana revisar-lo abans o si les proves no passen.
 - **Convencions de desenvolupament:** mobile-first, en català, **sense frameworks pesats** (HTML/CSS/JS pur i Python estàndard).
 - **Disseny:** el pes màxim de lletra és **Bold (700)**. **Mai Black/900**: ho ha demanat diverses vegades perquè perjudica la llegibilitat.
 - **Colors corporatius** (extrets del logo oficial de l'escola, `docs/logo-vedruna-escorial-vic.png`): granat **`#810023`** i vermell **`#E0003F`**. El logo és un "check" de dos traços (curt vermell + llarg granat) amb el text "**Vedruna** Escorial Vic".
@@ -166,8 +167,8 @@ tools/            demo.sh (servidor de proves sense so), proves-api.sh, captures
 | Mètode | Ruta | Funció |
 |---|---|---|
 | GET | `/api/sessio` | `{configurada, ok}` |
-| POST | `/api/configura` | Primer ús: estableix la contrasenya (mínim 4 caràcters). Si ja n'hi ha una, retorna 403. |
-| POST | `/api/login` / `/api/logout` | Cookie de sessió de 90 dies |
+| POST | `/api/configura` | Primer ús: estableix la contrasenya (codi de 4 xifres, `codi_valid`). Si ja n'hi ha una, retorna 403. Normalment no es fa servir, perquè `installa.sh` ja demana la contrasenya. |
+| POST | `/api/login` / `/api/logout` | Cookie de sessió de 90 dies (`HttpOnly`, `SameSite=Lax`, sense `Secure` perquè la web va per http). A partir del 5è error seguit des d'una IP, `/api/login` respon 429 durant 30 s, 1 min, 2 min… fins a 15 min. Un login correcte posa el comptador a zero. |
 | GET | `/api/estat` | Hora, sincronització NTP, IP, què sona, proper toc, tocs d'avui amb estat, silenci, `seleccio {mode, canco}`, recompte de cançons, `demo` |
 | GET/PATCH | `/api/config` | Llegeix o canvia `tocs`, `festius`, `ajustos`, `seleccio`, `actiu`, `silenci_avui` (bool). Amb validació. |
 | GET/POST | `/api/cancons` | Llistat (durada amb mutagen, si està activa, inici, vegades) i pujada multipart (`fitxers`). Neteja els noms i evita duplicats. |
@@ -198,7 +199,7 @@ tools/            demo.sh (servidor de proves sense so), proves-api.sh, captures
 pip install flask waitress mutagen      # ffmpeg opcional, per crear mp3 de prova
 bash tools/demo.sh                      # http://localhost:8099
 bash tools/proves-api.sh                # en una altra terminal
-python3 tools/captures.py <carpeta>     # captures amb Playwright (contrasenya "escorial")
+python3 tools/captures.py <carpeta>     # captures amb Playwright (contrasenya de proves "2468")
 ```
 `TIMBRE_DEMO=1` substitueix mpv per `sleep`, així que no surt so. Variables útils: `TIMBRE_DIR` (on van les dades), `TIMBRE_PORT` i `TIMBRE_AUDIO` (dispositiu de mpv).
 
@@ -212,7 +213,9 @@ python3 tools/captures.py <carpeta>     # captures amb Playwright (contrasenya "
 
 **Repositori:** https://github.com/poldpm/timbre-escola (branca `main`). La Raspberry s'instal·la amb `git clone` + `bash installa.sh` i s'actualitza amb `git pull && bash installa.sh` (vegeu GUIA.md). `installa.sh` copia `timbre.py` i `web/` a `~/timbre/`, on hi ha les dades. **El repo és públic per decisió d'en Pol** (18/10): se li ha explicat que els privats són gratuïts i ha preferit deixar-lo així. No hi ha secrets, perquè les dades reals són a la Pi i al `.gitignore`. **No pugis mai contrasenyes, IP, dades de la wifi ni dades personals.**
 
-**Riscos detectats a la revisió del 18/10 que encara no s'han tocat:** el filtre `loudnorm` pot endarrerir l'inici uns segons (cal provar-ho a la Pi); els dos rellotges (Theben i Pi) poden desquadrar-se (la protecció de 3 s és petita); els `int()` sense validar a `/api/toca` i `PATCH /api/cancons/<nom>` donen un error 500; `estat.json` es llegeix i s'escriu des de dos fils sense lock; no es comprova l'espai lliure de la SD a les pujades. Si la placa és una Pi 3 B (no B+), la wifi només és de 2,4 GHz.
+**Riscos de la revisió del 18/10 ja arreglats:** configuració a prova de talls de llum, detecció de "Ha fallat", límit d'intents de login, contrasenya triada a `installa.sh` abans d'engegar la web, galetes `HttpOnly` i `SameSite=Lax`, validació amb `enter()` (400 en lloc de 500), `ESTAT_LOCK` per a `estat.json` i `ESPAI_RESERVAT` (300 MB) a les pujades (la resposta inclou `sense_espai`).
+
+**Riscos que encara queden (no són de codi o s'han de provar a la Pi):** el filtre `loudnorm` pot endarrerir l'inici uns segons; els dos rellotges (Theben i Pi) poden desquadrar-se (la protecció de 3 s és petita); si la placa és una Pi 3 B (no B+), la wifi només és de 2,4 GHz.
 
 
 En Pol **ja té la microSD**. La Raspberry Pi 3 l'hi deixa algú (és gratis). En el moment del traspàs, no sabem si ja la té a les mans.
@@ -233,7 +236,7 @@ En Pol **ja té la microSD**. La Raspberry Pi 3 l'hi deixa algú (és gratis). E
 - **Port 80** sense root, amb `AmbientCapabilities=CAP_NET_BIND_SERVICE` al servei.
 - **`timbre.local` (mDNS)** potser no funciona en alguns Android. La web i l'instal·lador mostren també la IP. Seria bo fixar la IP o fer una reserva DHCP.
 - **Sense HTTPS:** el navegador no deixarà fer servir el micròfon (per això no hi ha "gravar un avís"). La contrasenya viatja en clar per la wifi de l'escola. És acceptable en una LAN, però tingues-ho en compte.
-- El **primer accés** estableix la contrasenya: cal fer-ho just després d'instal·lar.
+- La contrasenya es tria a `installa.sh` (amb `timbre.py --contrasenya`), abans d'engegar el servei. **La contrasenya és un codi de 4 xifres per decisió d'en Pol (18/10)**: la sessió dura 90 dies i no vol posar res més llarg. Se li va proposar un mínim de 10 caràcters i ho va descartar. El protegeix el límit d'intents (5 lliures, després bloqueig de 30 s doblant fins a 15 min) i que la web només s'obre des de la wifi de l'escola. No ho tornis a proposar. **El codi real no ha d'aparèixer mai al repo.**
 - Paquets `python3-flask`, `python3-waitress` i `python3-mutagen` d'apt a Bookworm: no s'ha comprovat que hi siguin tots. Si en falta algun, cal fer servir `pip install --break-system-packages`. Si no hi ha waitress, el codi fa servir el servidor de Flask.
 - **Canvi d'hora estiu/hivern:** la Raspberry el fa sola. El Theben també pot fer-lo automàticament, però el protocol diu que es fa a mà. **Cal vigilar que no quedin desquadrats** l'endemà del canvi.
 - Dues coses del Theben que no s'han tocat: si té el canvi d'hora automàtic activat i com va de precisió (el protocol parla d'una vida útil de 5 anys).

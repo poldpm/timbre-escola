@@ -47,14 +47,15 @@ Per a cada toc, la **durada** és el temps entre l'ON i l'OFF menys uns 5 segons
    cd timbre-escola
    bash installa.sh
    ```
-4. En acabar et mostrarà l'adreça de la web.
+4. Cap al final et demanarà la **contrasenya de la web**: un **codi de 4 xifres**. Mentre l'escrius no es veurà res a la pantalla: és normal. El necessitaran totes les persones que hagin de gestionar el timbre, i només s'ha de posar el primer cop a cada mòbil o ordinador (es recorda 90 dies). **No l'apuntis enlloc del repositori de GitHub, que és públic.**
+5. En acabar et mostrarà l'adreça de la web.
 
 > Si el repositori de GitHub és **privat**, el `git clone` et demanarà usuari i contrasenya. Com a contrasenya no serveix la de GitHub: cal un *token* (github.com → Settings → Developer settings → Personal access tokens → Fine-grained, amb permís només de lectura d'aquest repositori).
 
 ## 5. Primer cop a la web
 
 1. Des del mòbil o l'ordinador, connectat a la **mateixa wifi**, obre **http://timbre.local**. Si no carrega, fes servir l'adreça amb números que ha mostrat l'instal·lador (per exemple `http://192.168.1.50`).
-2. Tria una **contrasenya**. Només la necessitaran les persones que hagin de gestionar el timbre.
+2. Entra amb el **codi de 4 xifres** que has triat a la instal·lació. Si t'equivoques 5 vegades seguides, la web et farà esperar uns minuts abans de tornar-ho a provar.
 3. Ves a **Inici → Toca una cançó ara** (amb l'amplificador apagat, només per veure que no surt cap error). Si surt "No ha sonat: No s'ha pogut obrir la sortida d'àudio", mira l'apartat [Si surt «Ha fallat»](#si-surt-ha-fallat).
 4. **Horari:** posa-hi les hores i durades reals del pas 2 i desa.
 5. **Cançons:** puja-les. Des de l'ordinador pots arrossegar-ne moltes de cop.
