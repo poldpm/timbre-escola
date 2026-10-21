@@ -236,10 +236,12 @@ En Pol **ja té la microSD**. La Raspberry Pi 3 l'hi deixa algú (és gratis). E
 
 **Comprovat a la Raspberry real (21/10, a casa d'en Pol):** Raspberry Pi OS Lite 64-bit (kernel 6.18.50+rpt-rpi-v8, Debian). `installa.sh` acaba bé (tots els paquets d'apt hi són) i el servei queda `active (running)`. `aplay -l` mostra **`card 1: Headphones`**, així que el valor per defecte de `TIMBRE_AUDIO` és correcte. Primer problema real: un cable micro-USB de mòbil feia que la Pi es reiniciés en bucle (LED vermell intermitent, verd apagat); amb un altre cable va, però `vcgencmd get_throttled` dona `0x50000` (hi ha hagut baixada de tensió des de l'arrencada) amb un carregador de 5 V 2,1 A. **Recomanat: alimentador oficial de 2,5 A abans de deixar-la a l'escola.** L'usuari de la Pi és `poldelpozo`.
 
+**A l'escola (21/10):** la wifi de l'escola funciona i la web s'obre. La Raspberry va a l'**entrada LINE IN 5** del JEDIA (RCA, que era lliure). El Fonestar continua a la seva entrada (probablement la 4) com a pla de tornada: es deixa sense pen quan la Raspberry ja fa els tocs. **Problema real: sonava molt fluix.** `amixer -c Headphones` donava `PCM -19.88dB` (l'`amixer ... 100%` d'`installa.sh` no havia quedat). Ara `posa_volum_sortida()` posa `PCM` a `VOLUM_SORTIDA` (0 dB, variable `TIMBRE_VOLUM_SORTIDA`) cada cop que arrenca el servei. També s'ha pujat l'objectiu de `loudnorm` de -16 a **-11 LUFS** (a -16 sonava força més fluix que les cançons originals del Fonestar).
+
 
 - **Nom del dispositiu ALSA:** s'ha suposat `alsa/plughw:CARD=Headphones,DEV=0` (Raspberry Pi OS Bookworm, jack analògic). Verifica-ho amb `aplay -l` i `mpv --audio-device=help`. Si no coincideix, canvia la variable d'entorn `TIMBRE_AUDIO` al servei o la constant.
 - El **jack analògic de la Pi 3** pot fer soroll de fons. Si molesta, la solució és una targeta de so USB (~5 €).
-- El filtre `loudnorm` de mpv fa servir CPU. A la Pi 3 hauria d'anar bé, però si es talla, posa `normalitza=false`.
+- El filtre `loudnorm` de mpv fa servir CPU. A la Pi 3 hauria d'anar bé, però si es talla, posa `normalitza=false`. L'objectiu és -11 LUFS i el pic -1 dBTP.
 - **Port 80** sense root, amb `AmbientCapabilities=CAP_NET_BIND_SERVICE` al servei.
 - **`timbre.local` (mDNS)** potser no funciona en alguns Android. La web i l'instal·lador mostren també la IP. Seria bo fixar la IP o fer una reserva DHCP.
 - **Sense HTTPS:** el navegador no deixarà fer servir el micròfon (per això no hi ha "gravar un avís"). La contrasenya viatja en clar per la wifi de l'escola. És acceptable en una LAN, però tingues-ho en compte.
