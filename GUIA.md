@@ -145,6 +145,13 @@ Quan la Raspberry intenta tocar i no pot, a la web surt un avís vermell a **Ini
   Desa, i fes `sudo systemctl restart timbre`.
 - **"El fitxer no es pot reproduir"**: aquella cançó està malmesa. Esborra-la i torna-la a pujar.
 
+## Si sona molt fluix
+
+1. A **Ajustos**, mira que el **Volum de la Raspberry** sigui al 100 %.
+2. Prova de desactivar **Iguala el volum de les cançons**.
+3. Puja la **rodeta 5** de LINE LEVEL, al davant del JEDIA. És l'entrada de la Raspberry i no afecta el Fonestar.
+4. Per SSH, `amixer -c Headphones` ha de dir `0.00dB`. El timbre el posa sol cada cop que arrenca. Si no, escriu `amixer -c Headphones sset PCM 0dB`.
+
 ## Si he oblidat la contrasenya
 
 Connecta't per SSH i executa:

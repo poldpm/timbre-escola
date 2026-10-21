@@ -18,7 +18,7 @@ cp "$ORIGEN/web/index.html" "$DESTI/web/"
 echo "== Rellotge i so =="
 sudo timedatectl set-timezone Europe/Madrid
 sudo systemctl enable --now systemd-timesyncd || true
-amixer -c Headphones sset PCM 100% unmute >/dev/null 2>&1 || true
+amixer -c Headphones sset PCM 0dB unmute >/dev/null 2>&1 || true   # timbre.py també ho fa en arrencar
 
 echo "== Permís per apagar-la des de la web =="
 REGLA=$(mktemp)

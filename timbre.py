@@ -22,6 +22,7 @@ import json
 import logging
 import os
 import random
+import re
 import secrets
 import shutil
 import socket
@@ -46,6 +47,7 @@ CLAU = BASE / ".clau_sessio"
 PORT = int(os.environ.get("TIMBRE_PORT", "80"))
 DEMO = os.environ.get("TIMBRE_DEMO") == "1"          # proves sense so
 SORTIDA_AUDIO = os.environ.get("TIMBRE_AUDIO", "alsa/plughw:CARD=Headphones,DEV=0")
+VOLUM_SORTIDA = os.environ.get("TIMBRE_VOLUM_SORTIDA", "0dB")   # volum del jack (amixer)
 EXTENSIONS = {".mp3", ".m4a", ".ogg", ".wav", ".flac", ".opus", ".aac"}
 SOCKET_MPV = "/tmp/timbre-mpv.sock"
 MPV_LOG = BASE / "mpv.log"            # errors de l'ultim cop que ha sonat
@@ -511,7 +513,8 @@ class Reproductor:
             if inici:
                 args.append(f"--start={inici}")
             if aj["normalitza"]:
-                args.append("--af=lavfi=[loudnorm=I=-16:TP=-1.5:LRA=11]")
+                # -11 LUFS: prop del volum de les cançons comercials (a -16 sonava molt fluix)
+                args.append("--af=lavfi=[loudnorm=I=-11:TP=-1:LRA=11]")
             args.append(str(canco))
         error = None
         with self.lock:
@@ -620,6 +623,24 @@ def programador():
 
 
 # ----------------------------------------------------------------- SISTEMA
+def posa_volum_sortida():
+    """El jack de la Pi pot arrencar a -20 dB i sonar molt fluix (21/10, a l'escola):
+    cada cop que s'engega el timbre, el posem a VOLUM_SORTIDA."""
+    m = re.search(r"CARD=([^,]+)", SORTIDA_AUDIO)
+    if not m:
+        return
+    ordre = ["amixer", "-q", "-c", m.group(1), "sset", "PCM", VOLUM_SORTIDA, "unmute"]
+    try:
+        r = subprocess.run(ordre, capture_output=True, text=True, timeout=5)
+    except Exception as e:
+        log.warning("No puc ajustar el volum de la sortida: %s", e)
+        return
+    if r.returncode:
+        log.warning("No puc ajustar el volum de la sortida: %s", (r.stderr or "").strip())
+    else:
+        log.info("Volum de la sortida %s: %s", m.group(1), VOLUM_SORTIDA)
+
+
 def hora_sincronitzada():
     try:
         r = subprocess.run(["timedatectl", "show", "-p", "NTPSynchronized", "--value"],
@@ -1021,6 +1042,9 @@ def main():
             desa_config()
         print("Contrasenya desada.")
         return
+
+    if not DEMO:
+        posa_volum_sortida()
 
     if "--prova" in sys.argv:
         canco = tria_canco(cfg())
