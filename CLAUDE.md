@@ -224,7 +224,9 @@ python3 tools/captures.py <carpeta>     # captures amb Playwright (contrasenya d
 
 En Pol **ja té la microSD**. La Raspberry Pi 3 l'hi deixa algú (és gratis). En el moment del traspàs, no sabem si ja la té a les mans.
 
-1. **Apuntar l'horari real del Theben** (MENU → PROGRAM → consultar): cada ON i OFF. Durada a la web = OFF − ON − ~5 s.
+**Estat el 21/10 (tarda, a l'escola):** la Raspberry ja està instal·lada i connectada a l'entrada LINE IN 5 del JEDIA, i sona fort i a tots els altaveus. Les zones del JEDIA són les mateixes per a totes les entrades. **Horari real del Theben** (llegit d'un vídeo de la pantalla; 5 marquetes de dies, segurament de dilluns a divendres): **8:50–8:51, 11:09–11:10, 11:43–11:44 i 14:50–14:51**, és a dir, 60 s de corrent per toc. A la web s'hi ha posat 08:50, 11:09, 11:43 i 14:50 amb **durada 55 s**. **El Theben anava 2 minuts endarrerit** respecte a la Pi (NTP). En Pol l'ha posat en hora el 21/10, prement OK quan la web marcava :00. El marge és petit (3 s d'espera + 55 s dins d'una finestra de 60 s): **cal tornar a comparar-los d'aquí a una setmana** per saber quant es desquadra el Theben. Si es desquadra gaire, cal posar-lo en hora més sovint o escurçar la durada (per exemple, a 45 s).
+
+1. ~~Apuntar l'horari real del Theben~~ Fet el 21/10 (vegeu a dalt). **Pendent: el primer toc real (22/10 a les 8:50), amb en Pol mirant que surti "Ha sonat" i que se senti. Treure el pen del Fonestar perquè no sonin tots dos alhora.**
 2. **Comprovar que és el rellotge qui treu el JEDIA de standby** (mirar el LED en un toc real).
 3. **Tipus de wifi de la sala:** si és WPA2-Enterprise o té portal captiu, cal cable de xarxa. Sense internet no hi ha hora fiable, perquè la Pi 3 **no té RTC**.
 4. **Connector de l'entrada del JEDIA** on va el Fonestar (RCA o jack) per saber quin cable cal.
