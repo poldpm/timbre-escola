@@ -79,7 +79,7 @@ Per a cada toc, la **durada** és el temps entre l'ON i l'OFF menys uns 5 segons
 5. **Horari:** posa-hi les hores i durades reals del pas 2 i desa.
 6. **Festius:** afegeix-hi les vacances i els dies festius del curs.
 
-Per apagar-la abans de portar-la a l'escola, per SSH: `sudo poweroff`. Espera que s'apagui la llum verda i desendolla-la.
+Per apagar-la abans de portar-la a l'escola: a la web, **Ajustos → Apaga la Raspberry** (o, per SSH, `sudo poweroff`). Espera que la llum verda deixi de parpellejar i desendolla-la.
 
 > Consell: guarda la web a la pantalla d'inici del mòbil (menú del navegador → "Afegeix a la pantalla d'inici"). Així la tindràs com una app.
 
@@ -115,7 +115,7 @@ Per apagar-la abans de portar-la a l'escola, per SSH: `sudo poweroff`. Espera qu
 | **Cançons → Com sonen** | Una de diferent a cada toc · la mateixa tot el dia (l'endemà una altra) · la mateixa tota la setmana (canvia cada dilluns) · sempre una de concreta. La d'avui o de la setmana es pot canviar amb «Canvia-la» o triar-la des de la llista |
 | **Festius** | Dies solts o períodes de vacances en què no sona |
 | **Historial** | Què ha sonat i quan |
-| **Ajustos** | Volum, igualar volum entre cançons, espera inicial, fos, quantes cançons recents no es repeteixen, contrasenya i còpia de seguretat |
+| **Ajustos** | Volum, igualar volum entre cançons, espera inicial, fos, quantes cançons recents no es repeteixen, contrasenya, colors de la web (clara o fosca), còpia de seguretat i **apagar la Raspberry** |
 
 **Recorda:** si canvies una hora a la web, canvia-la també al rellotge. Si no, la música sonarà amb l'amplificador apagat i no se sentirà.
 
@@ -160,5 +160,6 @@ Si mai falla: torna a connectar el cable d'àudio al Fonestar amb el seu pen. El
 ## Ordres útils (per SSH)
 
 - Veure si funciona: `journalctl -u timbre -f`
+- Apagar-la abans de desendollar-la: botó **Ajustos → Apaga la Raspberry** de la web, o `sudo poweroff`
 - Reiniciar el programa: `sudo systemctl restart timbre`
 - Prova de so sense web: `cd ~/timbre && python3 timbre.py --prova`
