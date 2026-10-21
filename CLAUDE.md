@@ -43,7 +43,7 @@ Tot és en una prestatgeria de fusta d'una sala de l'escola.
 | `01-rack-complet.jpg` | Vista de tot el conjunt | |
 | `07-endoll-del-rellotge-fletxa.jpg` | La fletxa vermella assenyala on s'endolla el **transformador del Fonestar**: un endoll que **surt directament de la caixa del rellotge** (només té corrent quan el rellotge activa) | Al costat hi ha una **regleta blanca amb endolls lliures i corrent permanent**. També hi ha una **connexió amb regletes de borns i cables marrons sobre la fusta, sense caixa** (probablement el contacte del relé que engega l'ampli). S'ha recomanat que **no es toqui** i que l'instal·lador la tanqui en una caixeta. |
 | `06-protocol-paret.jpg` | Protocol penjat a la paret | Vegeu la transcripció a sota. |
-| `08-darrere-fonestar-i-jedia.jpg` (21/10) | **Darrere del Fonestar i del JEDIA** | Fonestar: entrada DC 12 V 0,5 A, **interruptor AUTOPLAY MODE: RANDOM / STANDARD** (no s'havia vist a les proves del 15/10, que només van mirar el botó REPEAT del davant) i sortides **RCA R/L**. El cable RCA del Fonestar va a la secció **LINE IN** (RCA) del darrere del JEDIA. El JEDIA també té PRE OUT, REC (RCA) i entrades MIC/LINE combo (XLR/jack) amb GAIN. A la foto no es veu clar si queda un parell LINE IN lliure. |
+| `08-darrere-fonestar-i-jedia.jpg` (21/10) | **Darrere del Fonestar i del JEDIA** | Fonestar: entrada DC 12 V 0,5 A, **interruptor AUTOPLAY MODE: RANDOM / STANDARD** (ja era a RANDOM; vegeu la nota de la secció 3) i sortides **RCA R/L**. El cable RCA del Fonestar va a la secció **LINE IN** (RCA) del darrere del JEDIA. El JEDIA també té PRE OUT, REC (RCA) i entrades MIC/LINE combo (XLR/jack) amb GAIN. A la foto no es veu clar si queda un parell LINE IN lliure. |
 
 ### Transcripció del protocol de la paret
 
@@ -81,7 +81,7 @@ Tot és en una prestatgeria de fusta d'una sala de l'escola.
 
 **Conclusió:** amb el Fonestar és impossible fer rotar les cançons. Cal substituir-lo com a font de música.
 
-> **Correcció del 21/10:** al darrere del Fonestar hi ha un interruptor **AUTOPLAY MODE (RANDOM / STANDARD)**. És possible que en mode RANDOM triï una pista a l'atzar en engegar-se. Cal provar-ho (diverses pistes al pen i diversos cicles d'OVERRIDE del Theben): molts reproductors barats fan servir sempre la mateixa llavor i començarien sempre per la mateixa "aleatòria". Encara que funcioni, la Raspberry continua aportant la web, festius, modes dia/setmana, fos i pujar cançons sense anar a canviar el pen. Es va informar a en Pol perquè decideixi.
+> **Nota del 21/10:** al darrere del Fonestar hi ha un interruptor **AUTOPLAY MODE (RANDOM / STANDARD)**. En Pol confirma que **ja estava a RANDOM** durant la prova del 15/10, i igualment va tornar a sonar la pista 1 després de tallar el corrent. Per tant, l'aleatori només actua mentre està encès; en engegar-se sempre comença per la mateixa. **La conclusió es manté:** cal la Raspberry.
 
 ---
 
