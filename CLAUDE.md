@@ -180,6 +180,7 @@ tools/            demo.sh (servidor de proves sense so), proves-api.sh, captures
 | GET | `/api/historial` | Les últimes 300 entrades |
 | POST | `/api/contrasenya` | `{actual, nova}` |
 | GET | `/api/copia` | Descarrega `config.json` sense la contrasenya |
+| POST | `/api/apaga` | Apaga la Raspberry amb `sudo -n /usr/bin/systemctl poweroff`, al cap de 2 s. Abans comprova el permís (`sudo -n -l`); si no en té, 400. `installa.sh` posa la regla a `/etc/sudoers.d/timbre`, validada amb `visudo -cf`. En mode demo no fa res. |
 
 ### Web (`web/index.html`)
 - Pestanyes a la barra inferior: **Inici · Horari · Cançons · Festius · Historial · Ajustos**. També s'hi pot accedir per hash (`#cancons`).
@@ -188,8 +189,8 @@ tools/            demo.sh (servidor de proves sense so), proves-api.sh, captures
 - **Cançons:** targeta "Com sonen les cançons" (4 modes amb ràdio i desplegable per al mode fixa), zona per pujar fitxers (arrossegar o seleccionar, amb progrés), cerca, llista amb previsualització, interruptor d'activa, menú ⋯ ("Comença al segon", "Toca-la ara per megafonia", "Posa-la per a avui / aquesta setmana / Fes que soni sempre aquesta", "Esborra") i xip "Avui / Aquesta setmana / Sempre".
 - **Festius:** formulari des de / fins a / nom, llista de festius vinents i plegable "Festius ja passats".
 - **Historial:** agrupat per dies.
-- **Ajustos:** volum, igualar volum (loudnorm), espera inicial, fos, no repetir, canvi de contrasenya, còpia de seguretat, sortir.
-- Mode fosc automàtic. Tokens CSS a `:root`.
+- **Ajustos:** volum, igualar volum (loudnorm), espera inicial, fos, no repetir, canvi de contrasenya, **Aparença** (Clara / Fosca / Com el dispositiu), còpia de seguretat, sortir i **Apaga la Raspberry**.
+- **Tema:** per defecte **clar**, encara que el dispositiu estigui en mode fosc (21/10: en Pol ho veia tot negre amb Windows en mode fosc). Es tria a Ajustos → Aparença i es guarda a `localStorage` (`tema`), és a dir, en cada aparell. Un script al `<head>` posa `data-tema` a `<html>` abans de pintar. Tokens CSS a `:root`, `:root[data-tema="fosc"]` i `@media (prefers-color-scheme:dark) :root[data-tema="auto"]`.
 
 ---
 

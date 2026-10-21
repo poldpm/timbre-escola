@@ -6,6 +6,11 @@
 <title>Timbre · Escorial Vic</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M6 15l7 7' stroke='%23e0003f' stroke-width='7' stroke-linecap='round'/><path d='M13 22L27 8' stroke='%23810023' stroke-width='7' stroke-linecap='round'/></svg>">
 <meta name="theme-color" content="#810023">
+<script>
+  // Tema de cada aparell (Ajustos → Aparença). Per defecte, clar.
+  try { document.documentElement.dataset.tema = localStorage.getItem("tema") || "clar"; }
+  catch { document.documentElement.dataset.tema = "clar"; }
+</script>
 <style>
 :root{
   /* Colors corporatius Vedruna Escorial Vic (logo): granat #810023 i vermell #E0003F */
@@ -16,13 +21,22 @@
   --radius:14px; --shadow:0 1px 2px rgba(0,0,0,.05),0 2px 10px rgba(0,0,0,.04);
   --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
 }
-@media (prefers-color-scheme:dark){
-  :root{
+:root[data-tema="fosc"]{
     --bg:#151213; --panel:#1f1a1b; --ink:#efe9ea; --muted:#a59c9e; --line:#342c2e;
     --accent:#f0517c; --accent-ink:#2a0010; --accent-soft:#3b1621; --accent-2:#ff5a85;
     --warn:#e7b25a; --warn-soft:#33270f; --danger:#f08a80; --danger-soft:#3a1a17;
     --ok:#7cc77f; --ok-soft:#18301a; --shadow:none;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:dark){
+  :root[data-tema="auto"]{
+    --bg:#151213; --panel:#1f1a1b; --ink:#efe9ea; --muted:#a59c9e; --line:#342c2e;
+    --accent:#f0517c; --accent-ink:#2a0010; --accent-soft:#3b1621; --accent-2:#ff5a85;
+    --warn:#e7b25a; --warn-soft:#33270f; --danger:#f08a80; --danger-soft:#3a1a17;
+    --ok:#7cc77f; --ok-soft:#18301a; --shadow:none;
+    color-scheme:dark;
   }
 }
 *{box-sizing:border-box}
@@ -67,7 +81,7 @@ section.actiu{display:block}
 .espai{flex:1}
 
 /* botons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px 14px;font-weight:600;font-size:14.5px;cursor:pointer;min-height:40px;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px 14px;font-weight:600;font-size:14.5px;cursor:pointer;min-height:40px;white-space:nowrap;color:inherit;text-decoration:none}
 .btn:hover{border-color:var(--muted)}
 .btn.prim{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .btn.perill{color:var(--danger)}
@@ -383,9 +397,16 @@ input[type=range]{width:140px;accent-color:var(--accent)}
     </form>
 
     <div class="card">
+      <h3>Aparença</h3>
+      <div class="ajust"><div class="t"><b>Colors de la web</b><small>Només en aquest dispositiu.</small></div>
+        <select id="a-tema" style="width:auto"><option value="clar">Clara</option><option value="fosc">Fosca</option><option value="auto">Com el dispositiu</option></select></div>
+    </div>
+
+    <div class="card">
       <h3>Sistema</h3>
       <div class="ajust"><div class="t"><b>Còpia de seguretat</b><small>Descarrega l'horari, els festius i els ajustos.</small></div><a class="btn mini" href="/api/copia">Descarrega</a></div>
       <div class="ajust"><div class="t"><b>Tanca la sessió</b><small>En aquest dispositiu.</small></div><button class="btn mini perill" id="btn-sortir">Surt</button></div>
+      <div class="ajust"><div class="t"><b>Apaga la Raspberry</b><small>Per desendollar-la sense perill. Per tornar-la a engegar, cal desendollar-la i tornar-la a endollar.</small></div><button class="btn mini perill" id="btn-apaga">Apaga</button></div>
       <p class="muted petit" id="info-sistema" style="margin:10px 0 0"></p>
     </div>
   </section>
@@ -854,6 +875,21 @@ $("#form-pass").addEventListener("submit", async e => {
   e.target.reset();
 });
 $("#btn-sortir").addEventListener("click", async () => { await api("/api/logout", { method: "POST" }); location.reload(); });
+$("#btn-apaga").addEventListener("click", async () => {
+  if (!confirm("Segur que vols apagar la Raspberry?\n\nNo sonarà cap toc fins que la desendollis i la tornis a endollar.")) return;
+  const r = await intenta(() => api("/api/apaga", { method: "POST" }));
+  if (r.demo) return toast("Mode de proves: no s'apaga res");
+  // Reaprofitem la pantalla d'entrada per al missatge (i així s'atura el refresc)
+  $("#login-titol").textContent = "S'està apagant…";
+  $("#login-text").textContent = "Espera uns 30 segons, fins que la llum verda de la Raspberry deixi de parpellejar. Llavors ja la pots desendollar.";
+  $("#login-form").classList.add("amagat");
+  $("#login").classList.add("visible");
+});
+try { $("#a-tema").value = localStorage.getItem("tema") || "clar"; } catch {}
+$("#a-tema").addEventListener("change", e => {
+  document.documentElement.dataset.tema = e.target.value;
+  try { localStorage.setItem("tema", e.target.value); } catch {}
+});
 
 // ---------------------------------------------------------------- ENGEGA
 async function inicia() {

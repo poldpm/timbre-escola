@@ -20,6 +20,16 @@ sudo timedatectl set-timezone Europe/Madrid
 sudo systemctl enable --now systemd-timesyncd || true
 amixer -c Headphones sset PCM 100% unmute >/dev/null 2>&1 || true
 
+echo "== Permís per apagar-la des de la web =="
+REGLA=$(mktemp)
+echo "$USER ALL=(root) NOPASSWD: /usr/bin/systemctl poweroff" > "$REGLA"
+if sudo visudo -cf "$REGLA" >/dev/null; then
+  sudo install -m 440 -o root -g root "$REGLA" /etc/sudoers.d/timbre
+else
+  echo "AVÍS: no he pogut donar el permís; el botó «Apaga» de la web no funcionarà."
+fi
+rm -f "$REGLA"
+
 echo "== Creant el servei que arrenca sol =="
 sudo tee /etc/systemd/system/timbre.service > /dev/null <<EOF
 [Unit]

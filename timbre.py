@@ -970,6 +970,27 @@ def api_contrasenya():
     return jsonify(ok=True)
 
 
+@app.post("/api/apaga")
+@cal_login
+def api_apaga():
+    """Apaga la Raspberry (per desendollar-la sense perill). Cal el permis que posa installa.sh."""
+    if DEMO:
+        log.info("Mode demo: no apago res")
+        return jsonify(ok=True, demo=True)
+    ordre = ["sudo", "-n", "/usr/bin/systemctl", "poweroff"]
+    permis = subprocess.run(["sudo", "-n", "-l"] + ordre[2:], capture_output=True)
+    if permis.returncode != 0:
+        raise Invalid("La Raspberry no té permís per apagar-se: torna a executar installa.sh")
+    log.warning("Apagant la Raspberry des de la web")
+
+    def apaga():
+        time.sleep(2)   # que la resposta arribi abans
+        REPRODUCTOR.atura()
+        subprocess.run(ordre)
+    threading.Thread(target=apaga, daemon=True).start()
+    return jsonify(ok=True)
+
+
 @app.get("/api/copia")
 @cal_login
 def api_copia():
