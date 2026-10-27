@@ -226,13 +226,17 @@ En Pol **ja té la microSD**. La Raspberry Pi 3 l'hi deixa algú (és gratis). E
 
 **Estat el 21/10 (tarda, a l'escola):** la Raspberry ja està instal·lada i connectada a l'entrada LINE IN 5 del JEDIA, i sona fort i a tots els altaveus. Les zones del JEDIA són les mateixes per a totes les entrades. **Horari real del Theben** (llegit d'un vídeo de la pantalla; 5 marquetes de dies, segurament de dilluns a divendres): **8:50–8:51, 11:09–11:10, 11:43–11:44 i 14:50–14:51**, és a dir, 60 s de corrent per toc. A la web s'hi ha posat 08:50, 11:09, 11:43 i 14:50 amb **durada 55 s**. **El Theben anava 2 minuts endarrerit** respecte a la Pi (NTP). En Pol l'ha posat en hora el 21/10, prement OK quan la web marcava :00. El marge és petit (3 s d'espera + 55 s dins d'una finestra de 60 s): **cal tornar a comparar-los d'aquí a una setmana** per saber quant es desquadra el Theben. Si es desquadra gaire, cal posar-lo en hora més sovint o escurçar la durada (per exemple, a 45 s).
 
-1. ~~Apuntar l'horari real del Theben~~ Fet el 21/10 (vegeu a dalt). **Pendent: el primer toc real (22/10 a les 8:50), amb en Pol mirant que surti "Ha sonat" i que se senti. Treure el pen del Fonestar perquè no sonin tots dos alhora.**
+**27/10: en Pol confirma que tot funciona bé** des del primer toc real. El pen del Fonestar s'ha tret (el té guardat com a pla de tornada).
+
+1. ~~Apuntar l'horari real del Theben~~ Fet el 21/10. ~~Primer toc real~~ Funciona.
 2. **Comprovar que és el rellotge qui treu el JEDIA de standby** (mirar el LED en un toc real).
-3. **Tipus de wifi de la sala:** si és WPA2-Enterprise o té portal captiu, cal cable de xarxa. Sense internet no hi ha hora fiable, perquè la Pi 3 **no té RTC**.
-4. **Connector de l'entrada del JEDIA** on va el Fonestar (RCA o jack) per saber quin cable cal.
+3. ~~Tipus de wifi de la sala~~ La Pi s'hi connecta bé (21/10). Text original: si és WPA2-Enterprise o té portal captiu, cal cable de xarxa. Sense internet no hi ha hora fiable, perquè la Pi 3 **no té RTC**.
+4. ~~Connector de l'entrada del JEDIA~~ RCA, entrada LINE IN 5 (21/10). Text original: on va el Fonestar (RCA o jack) per saber quin cable cal.
 5. **Demanar a informàtica una IP fixa (reserva DHCP)** per a la Raspberry, i connectar-la a la mateixa wifi que el personal. Es donarà l'enllaç `http://IP` a la directora i a qui calgui.
-6. Primera instal·lació real seguint `GUIA.md` i un primer toc amb en Pol al costat. **És el primer cop que en Pol fa servir una Raspberry:** la prepara a casa sense pantalla (portàtil Windows + PowerShell/SSH, Raspberry connectada al router amb cable, wifi de l'escola ja posada a l'Imager), prova el so amb auriculars i després la porta a l'escola. Guia'l pas a pas si t'ho demana.
+6. ~~Primera instal·lació real~~ Feta el 21/10. Text original: primera instal·lació real seguint `GUIA.md` i un primer toc amb en Pol al costat. **És el primer cop que en Pol fa servir una Raspberry:** la prepara a casa sense pantalla (portàtil Windows + PowerShell/SSH, Raspberry connectada al router amb cable, wifi de l'escola ja posada a l'Imager), prova el so amb auriculars i després la porta a l'escola. Guia'l pas a pas si t'ho demana.
 7. Copiar la cançó actual del pen com a `reserva.mp3`.
+8. **Comparar el Theben amb la Pi** cap al 28/10 (una setmana després de posar-lo en hora) i decidir si cal escurçar la durada.
+9. **Alimentador oficial de 2,5 A** (ara funciona amb un carregador de 2,1 A i hi ha hagut baixades de tensió).
 
 ## 8. Riscos i coses a verificar a la Raspberry real
 
@@ -255,6 +259,8 @@ En Pol **ja té la microSD**. La Raspberry Pi 3 l'hi deixa algú (és gratis). E
 ## 9. Idees per al futur (n'hem parlat o surten de forma natural)
 
 - ~~Accés des de fora de l'escola~~ **DESCARTAT per en Pol (18/10):** només s'hi entra des de la wifi de l'escola. Se li van explicar Tailscale (cal instal·lar l'app a cada usuari) i Tailscale Funnel (enllaç públic, però caldria reforçar el login: límit d'intents, contrasenya llarga, cookies Secure). Ho va trobar massa complicat per a la directora. No ho tornis a proposar si ell no ho demana.
+- **Spotify: DESCARTAT (27/10).** En Pol va preguntar si es podia tocar una llista de Spotify en lloc de descarregar cançons. Se li va desaconsellar: les condicions de Spotify prohibeixen la reproducció pública (megafonia d'una escola), caldria un programa no oficial i fràgil (librespot), un compte Premium i internet a cada toc. Se li va recordar que no cal retallar cançons ("Comença al segon" + la durada del toc amb fos).
+- **Sincronitzar cançons des d'una carpeta de Google Drive** (com a la v1/v2, amb rclone, cada nit): proposat el 27/10 per evitar haver de pujar les cançons a la web. En Pol diu "ja ho farem". **Encara no està fet.**
 - **Calendari de cançons temàtiques:** una cançó o llista diferent per dates (Nadal, Sant Jordi, final de curs).
 - **Llistes / categories** de cançons.
 - **Avisos per megafonia:** text a veu, o un fitxer pujat per tocar a una hora concreta un sol cop.
